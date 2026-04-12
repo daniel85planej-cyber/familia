@@ -769,7 +769,7 @@ function buildTaskCard(task) {
       const cur = state.editingAssignee[task.id];
       return '<div class="assignee-edit-row">'
         + '<span class="assignee-edit-label">Para:</span>'
-        + ASSIGNEES.map(a => '<button class="assignee-edit-btn' + (a===cur?' active':'') + '" onclick="pickAssignee(' + task.id + ',' + JSON.stringify(a) + ')">' + a + '</button>').join('')
+        + ASSIGNEES.map(a => '<button class="assignee-edit-btn' + (a===cur?' active':'') + '" onclick="pickAssignee(' + task.id + ',' + safeAttrStr(a) + ')">' + a + '</button>').join('')
         + '<button class="assignee-edit-save" onclick="saveAssignee(' + task.id + ')">✓</button>'
         + '<button class="date-edit-cancel" onclick="cancelAssigneeEdit(' + task.id + ')">✕</button>'
         + '</div>';
@@ -949,6 +949,14 @@ function buildResumoPainel() {
     + '</div></div>';
 }
 
+
+// Helper: serializa um valor para uso seguro em atributo HTML onclick
+// Usa aspas simples para strings para não conflitar com o atributo HTML entre aspas duplas
+function safeAttrStr(v) {
+  if (typeof v === 'number') return String(v);
+  return "'" + String(v).replace(/'/g, "\\'") + "'";
+}
+
 function buildContratosBlock(im) {
   const contratos = im.contratos || {};
   const lista = Object.values(contratos).sort((a,b) => (a.titulo||"").localeCompare(b.titulo||""));
@@ -976,14 +984,14 @@ function buildContratosBlock(im) {
       + '<span class="contrato-pdf-label">📎 PDF do Contrato</span>'
       + (ct.pdfData
           ? '<div><a href="'+ct.pdfData+'" download="'+(ct.titulo||'contrato')+'.pdf" class="contrato-pdf-link">📄 '+(ct.pdfNome||'Baixar PDF')+'</a>'
-            + '<button class="contrato-pdf-remove" onclick="removeContratoPdf('+im.id+','+JSON.stringify(prefixId)+')">✕ Remover</button></div>'
-          : '<label class="contrato-pdf-btn"><input type="file" id="cf-pdf-'+im.id+'-'+prefixId+'" accept="application/pdf" style="display:none" onchange="handleContratoPdf('+im.id+','+JSON.stringify(prefixId)+',this)">📎 Selecionar PDF</label>'
+            + '<button class="contrato-pdf-remove" onclick="removeContratoPdf('+im.id+','+safeAttrStr(prefixId)+')">✕ Remover</button></div>'
+          : '<label class="contrato-pdf-btn"><input type="file" id="cf-pdf-'+im.id+'-'+prefixId+'" accept="application/pdf" style="display:none" onchange="handleContratoPdf('+im.id+','+safeAttrStr(prefixId)+',this)">📎 Selecionar PDF</label>'
             + '<div id="cf-pdf-name-'+im.id+'-'+prefixId+'" class="contrato-pdf-name"></div>')
       + '</div>'
       + '<div class="contrato-form-actions">'
-      + '<button class="contrato-save-btn" onclick="saveContrato(' + im.id + ',' + JSON.stringify(prefixId) + ')">✓ Salvar</button>'
-      + '<button class="contrato-cancel-btn" onclick="cancelContrato(' + im.id + ',' + JSON.stringify(prefixId) + ')">Cancelar</button>'
-      + (prefixId !== 'new' ? '<button class="contrato-del-btn" onclick="deleteContrato(' + im.id + ',' + JSON.stringify(prefixId) + ')">🗑</button>' : '')
+      + '<button class="contrato-save-btn" onclick="saveContrato(' + im.id + ',' + safeAttrStr(prefixId) + ')">✓ Salvar</button>'
+      + '<button class="contrato-cancel-btn" onclick="cancelContrato(' + im.id + ',' + safeAttrStr(prefixId) + ')">Cancelar</button>'
+      + (prefixId !== 'new' ? '<button class="contrato-del-btn" onclick="deleteContrato(' + im.id + ',' + safeAttrStr(prefixId) + ')">🗑</button>' : '')
       + '</div></div>';
   };
 
@@ -1002,7 +1010,7 @@ function buildContratosBlock(im) {
       + (ct.pdfData ? '<a href="'+ct.pdfData+'" download="'+(ct.titulo||'contrato')+'.pdf" class="contrato-card-link">📄 PDF</a>' : '')
       + (isEdit ? contratoFormHtml(ct, ct.id) : '')
       + '</div>'
-      + '<button class="contrato-edit-btn" onclick="startEditContrato(' + im.id + ',' + JSON.stringify(ct.id) + ')">✏️</button>'
+      + '<button class="contrato-edit-btn" onclick="startEditContrato(' + im.id + ',' + safeAttrStr(ct.id) + ')">✏️</button>'
       + '</div>';
   }).join("");
 
