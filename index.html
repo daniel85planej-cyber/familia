@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Concierge">
+<title>Concierge Familiar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root { --gc: #E8A87C; }
+body { background: #F5F0E8; font-family: 'DM Sans', sans-serif; overscroll-behavior: none; }
+#app { min-height: 100vh; background: #F5F0E8; padding: 0 0 80px; }
+.header { background: #1C1C1E; padding: 20px 20px 0; padding-top: max(env(safe-area-inset-top,16px), 28px); }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.header-title { font-family: 'Playfair Display', serif; color: #F5F0E8; font-size: 24px; font-weight: 700; line-height: 1.2; }
+.header-sub { color: #888; font-size: 12px; margin-top: 3px; }
+.sync-badge { font-size: 11px; padding: 5px 10px; border-radius: 20px; font-weight: 500; border: 1px solid #3C3C3E; white-space: nowrap; background: #2C2C2E; color: #85C1A3; }
+.sync-badge.syncing { color: #F7D070; }
+.sync-badge.offline { color: #C07070; }
+.groups-nav { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding-bottom: 0; }
+.groups-nav::-webkit-scrollbar { display: none; }
+.group-tab { flex-shrink: 0; padding: 9px 14px; border-radius: 12px 12px 0 0; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; background: #2C2C2E; color: #888; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+.group-tab.active { color: #1C1C1E; font-weight: 700; }
+.content { padding: 20px 16px; }
+.sync-note { background: #1C1C1E; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.sync-note-text { font-size: 12px; color: #888; line-height: 1.5; }
+.sync-note-text strong { color: #F5F0E8; }
+.stats-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.stat-card { flex: 1; background: #fff; border-radius: 14px; padding: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); text-align: center; }
+.stat-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--gc); }
+.stat-lbl { font-size: 11px; color: #AAA; font-weight: 500; margin-top: 2px; }
+.house-selector { background: #fff; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+.house-selector-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #AAA; text-transform: uppercase; margin-bottom: 10px; }
+.house-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.house-btn { padding: 7px 14px; border-radius: 20px; border: 1.5px solid #E8E0D8; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; color: #888; transition: all 0.2s; }
+.house-btn.active { background: var(--gc); border-color: var(--gc); color: #1C1C1E; font-weight: 700; }
+.travel-header { background: linear-gradient(135deg, #2C2050 0%, #1C1C1E 100%); border-radius: 18px; padding: 16px 18px; margin-bottom: 16px; border: 1px solid #3D3560; }
+.travel-header-title { font-family: 'Playfair Display', serif; color: #B5A8D8; font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.travel-name-input { width: 100%; background: #1C1C1E; border: 1.5px solid #3D3560; border-radius: 10px; padding: 9px 14px; color: #F5F0E8; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; margin-bottom: 10px; }
+.travel-cats, .health-cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.travel-cat-btn, .health-cat-btn { padding: 5px 12px; border-radius: 20px; border: 1.5px solid #3D3560; background: transparent; color: #888; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.travel-cat-btn.active { background: #B5A8D8; border-color: #B5A8D8; color: #1C1C1E; font-weight: 600; }
+.health-header { background: linear-gradient(135deg, #0D3030 0%, #1C1C1E 100%); border-radius: 18px; padding: 16px 18px; margin-bottom: 16px; border: 1px solid #1E5050; }
+.health-header-title { color: #7EC8C8; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+.health-cat-btn.active { background: #7EC8C8; border-color: #7EC8C8; color: #0D2020; font-weight: 600; }
+.add-section { background: #fff; border-radius: 18px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.add-row { display: flex; gap: 8px; align-items: center; }
+.add-input { flex: 1; border: 1.5px solid #E8E0D8; border-radius: 12px; padding: 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: #FAFAF8; outline: none; color: #1C1C1E; }
+.add-input:focus { border-color: var(--gc); }
+.add-input::placeholder { color: #BBBBB0; }
+.add-btn { width: 44px; height: 44px; border-radius: 13px; border: none; background: var(--gc); color: #1C1C1E; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s; }
+.add-btn:active { transform: scale(0.92); }
+.assignee-row, .due-date-row, .address-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.assignee-label, .due-date-label, .address-label { font-size: 12px; color: #999; font-weight: 500; white-space: nowrap; }
+.assignee-btn { padding: 5px 12px; border-radius: 20px; border: 1.5px solid #E8E0D8; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; color: #666; transition: all 0.2s; }
+.assignee-btn.active { background: var(--gc); border-color: var(--gc); color: #1C1C1E; font-weight: 600; }
+.due-date-input { border: 1.5px solid #E8E0D8; border-radius: 10px; padding: 7px 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; background: #FAFAF8; outline: none; color: #555; flex: 1; }
+.due-date-input:focus { border-color: var(--gc); }
+.time-input { width: 110px; flex: none !important; }
+.cal-toggle { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: #999; cursor: pointer; }
+.cal-toggle input { accent-color: var(--gc); }
+.address-input { flex: 1; border: 1.5px solid #E8E0D8; border-radius: 10px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; background: #FAFAF8; outline: none; color: #555; }
+.address-input:focus { border-color: var(--gc); }
+.notes-row { margin-top: 10px; }
+.notes-input { width: 100%; border: 1.5px solid #E8E0D8; border-radius: 10px; padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; background: #FAFAF8; outline: none; resize: none; color: #555; min-height: 60px; }
+.notes-input:focus { border-color: var(--gc); }
+.notes-input::placeholder { color: #BBBBB0; }
+.section-label { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; color: #AAA; text-transform: uppercase; margin-bottom: 8px; margin-top: 4px; }
+.task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.task-card { background: #fff; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; align-items: stretch; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+.task-card.done { opacity: 0.5; }
+.task-row { display: flex; align-items: center; gap: 10px; }
+.check-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--gc); background: transparent; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.2s; font-size: 12px; color: #1C1C1E; }
+.check-btn.done { background: var(--gc); }
+.task-body { flex: 1; min-width: 0; }
+.task-text { font-size: 14px; color: #1C1C1E; font-weight: 400; line-height: 1.4; }
+.task-text.done { text-decoration: line-through; color: #AAA; }
+.task-meta { font-size: 11px; color: #BBBBB0; margin-top: 4px; display: flex; gap: 6px; flex-wrap: wrap; }
+.meta-tag { background: #F5F0E8; border-radius: 6px; padding: 1px 7px; font-weight: 500; }
+.due-tag { border-radius: 6px; padding: 1px 7px; font-weight: 500; font-size: 11px; background: #FFF0E8; color: #C07040; }
+.due-tag.overdue { background: #FFE8E8; color: #C04040; }
+.due-tag.done-tag { background: #E8F5EE; color: #3A9060; }
+.house-tag { font-size: 11px; border-radius: 6px; padding: 1px 7px; font-weight: 600; background: #F5F0E8; color: #888; }
+.delete-btn { background: none; border: none; color: #D0C8C0; cursor: pointer; font-size: 16px; padding: 4px; flex-shrink: 0; }
+.task-address { margin-top: 6px; }
+.map-link { font-size: 12px; color: #4A90D9; text-decoration: none; background: #EEF4FC; border-radius: 6px; padding: 3px 10px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+.task-notes { margin-top: 6px; font-size: 12px; color: #888; line-height: 1.5; background: #F9F7F4; border-radius: 8px; padding: 7px 10px; border-left: 3px solid var(--gc); cursor: pointer; }
+.task-notes-label { font-size: 10px; color: #AAA; display: block; margin-bottom: 2px; }
+.add-note-btn { background: none; border: none; font-size: 12px; color: #BBBBB0; cursor: pointer; margin-top: 4px; padding: 2px 0; }
+.notes-edit-input { width: 100%; border: 1.5px solid var(--gc); border-radius: 8px; padding: 6px 10px; font-family: 'DM Sans', sans-serif; font-size: 12px; background: #FAFAF8; outline: none; resize: none; color: #444; min-height: 50px; margin-top: 6px; }
+.note-actions { display: flex; gap: 8px; margin-top: 6px; }
+.note-save { flex: 1; padding: 6px; border-radius: 8px; border: none; background: var(--gc); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; }
+.note-cancel { padding: 6px 12px; border-radius: 8px; border: 1.5px solid #E8E0D8; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; color: #888; }
+.empty { text-align: center; padding: 32px 20px; color: #C0B8B0; font-size: 14px; }
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
+.travel-group-section { margin-bottom: 20px; }
+.travel-trip-title { font-family: 'Playfair Display', serif; color: #B5A8D8; font-size: 15px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #2C2050; }
+.travel-group-label, .health-group-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; color: #B5A8D8; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.health-group-label { color: #7EC8C8; }
+.travel-trip-name { font-size: 11px; background: #2C2050; color: #B5A8D8; border-radius: 6px; padding: 2px 8px; font-weight: 500; }
+.health-count-tag { font-size: 11px; background: #0D3030; color: #7EC8C8; border-radius: 6px; padding: 2px 8px; font-weight: 500; }
+.contacts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.contacts-title { font-family: 'Playfair Display', serif; font-size: 18px; color: #1C1C1E; font-weight: 700; }
+.new-contact-btn { background: var(--gc); border: none; border-radius: 12px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; color: #1C1C1E; }
+.contact-form { background: #fff; border-radius: 18px; padding: 18px; margin-bottom: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.contact-form-title { font-size: 14px; font-weight: 600; color: #1C1C1E; margin-bottom: 14px; }
+.contact-photo-upload { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.photo-preview, .photo-placeholder { width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--gc); }
+.photo-preview { object-fit: cover; cursor: pointer; }
+.photo-placeholder { background: #F5F0E8; border-style: dashed; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+.photo-label { font-size: 12px; color: #999; cursor: pointer; }
+.photo-label span { color: var(--gc); font-weight: 600; text-decoration: underline; }
+.contact-field { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.contact-field-label { font-size: 12px; color: #999; width: 72px; flex-shrink: 0; font-weight: 500; }
+.contact-field-input, .contact-field-select { flex: 1; border: 1.5px solid #E8E0D8; border-radius: 10px; padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; background: #FAFAF8; outline: none; color: #1C1C1E; }
+.contact-field-input:focus, .contact-field-select:focus { border-color: var(--gc); }
+.contact-form-actions { display: flex; gap: 8px; margin-top: 14px; }
+.contact-save-btn { flex: 1; background: var(--gc); border: none; border-radius: 12px; padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; color: #1C1C1E; }
+.contact-cancel-btn { padding: 10px 16px; border-radius: 12px; border: 1.5px solid #E8E0D8; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; color: #888; }
+.contacts-search { width: 100%; border: 1.5px solid #E8E0D8; border-radius: 12px; padding: 10px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: #fff; outline: none; margin-bottom: 16px; color: #1C1C1E; }
+.contacts-search:focus { border-color: var(--gc); }
+.contacts-section-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #C8A87E; text-transform: uppercase; margin: 14px 0 8px; }
+.contact-card { background: #fff; border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); margin-bottom: 8px; }
+.contact-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--gc); }
+.contact-avatar-placeholder { width: 48px; height: 48px; border-radius: 50%; background: #F5F0E8; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; border: 2px solid var(--gc); }
+.contact-info { flex: 1; min-width: 0; }
+.contact-name { font-size: 15px; font-weight: 600; color: #1C1C1E; }
+.contact-company { font-size: 12px; color: #888; margin-top: 1px; }
+.contact-links { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.contact-link { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: #F5F0E8; color: #666; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
+.contact-delete-btn { background: none; border: none; color: #D0C8C0; cursor: pointer; font-size: 15px; padding: 4px; align-self: flex-start; }
+
+/* FDS */
+.fds-outer { display: flex; gap: 16px; align-items: flex-start; }
+.fds-col { flex: 1; min-width: 0; }
+.fds-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.fds-block-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: #1C1C1E; margin: 0 0 8px; text-align: center; }
+.fds-block { background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px; }
+.fds-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.fds-table th { background: #1C1C1E; color: #F5F0E8; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; padding: 8px 4px; text-align: center; }
+.fds-table th:first-child { text-align: left; padding-left: 8px; }
+.fds-row-green td { background: #4CAF50; color: #fff; font-weight: 600; }
+.fds-row-white td { background: #fff; color: #1C1C1E; }
+.fds-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid #F0EDE8; font-size: 11px; }
+.fds-table td:first-child { text-align: left; padding-left: 8px; }
+.fds-who-select { background: transparent; border: none; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; outline: none; max-width: 72px; }
+.fds-row-green .fds-who-select { color: #fff; }
+.fds-row-green .fds-who-select option { color: #1C1C1E; background: #fff; }
+.fds-obs-row td { padding: 3px 8px 7px !important; background: #F9F7F4 !important; border-bottom: 2px solid #E8E0D8 !important; }
+.fds-obs-inner { display: flex; flex-direction: column; gap: 4px; }
+.fds-obs-input { width: 100%; border: 1.5px solid #E8E0D8; border-radius: 8px; padding: 4px 8px; font-family: 'DM Sans', sans-serif; font-size: 11px; background: #fff; outline: none; color: #555; resize: none; }
+.fds-obs-input:focus { border-color: #7BBF8E; }
+.fds-obs-input::placeholder { color: #BBBBB0; }
+.fds-event-input { width: 100%; border: 1.5px solid #FFD0A0; border-radius: 6px; padding: 3px 7px; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; background: #FFF5EC; outline: none; color: #E65C00; resize: none; }
+.fds-event-input:focus { border-color: #E65C00; }
+.fds-event-input::placeholder { color: #FFBB88; font-weight: 400; }
+.fds-event-label { font-size: 9px; color: #E65C00; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
+.loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; font-size: 14px; color: #888; flex-direction: column; gap: 12px; background: #F5F0E8; }
+.loading-spinner { width: 32px; height: 32px; border: 3px solid #E8E0D8; border-top-color: #E8A87C; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.task-card, .contact-card { animation: slideIn 0.2s ease; }
+
+/* ── Date/time inline editor ── */
+.date-edit-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; padding:8px 10px; background:#F9F7F4; border-radius:10px; border:1.5px solid var(--gc); }
+.date-edit-input { border:1.5px solid #E8E0D8; border-radius:8px; padding:5px 8px; font-family:'DM Sans',sans-serif; font-size:12px; background:#fff; outline:none; color:#444; }
+.date-edit-input:focus { border-color:var(--gc); }
+.date-edit-save { padding:5px 12px; border-radius:8px; border:none; background:var(--gc); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; color:#1C1C1E; }
+.date-edit-clear { padding:5px 10px; border-radius:8px; border:1.5px solid #FFE0E0; background:#FFF5F5; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#C07070; }
+.date-edit-cancel { padding:5px 10px; border-radius:8px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#888; }
+.add-due-btn { background:none; border:none; font-size:12px; color:#BBBBB0; cursor:pointer; margin-top:4px; padding:2px 0; display:inline-block; }
+.due-tag-clickable { cursor:pointer; }
+.due-tag-clickable:hover { opacity:0.75; }
+
+/* Data de início da viagem no header */
+.travel-date-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.travel-date-label { font-size:11px; color:#B5A8D8; font-weight:600; white-space:nowrap; }
+.travel-date-input { background:#1C1C1E; border:1.5px solid #3D3560; border-radius:8px; padding:6px 10px; color:#F5F0E8; font-family:'DM Sans',sans-serif; font-size:12px; outline:none; flex:1; }
+.travel-date-input:focus { border-color:#B5A8D8; }
+.travel-trip-date { font-size:11px; color:#9B90C8; font-weight:500; margin-left:4px; }
+.travel-trip-future { color:#85C1A3; }
+.travel-trip-past { color:#888; }
+.travel-trip-today { color:#F7D070; }
+
+/* Edição inline do Para: na task card */
+.assignee-edit-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; padding:7px 10px; background:#F9F7F4; border-radius:10px; border:1.5px solid var(--gc); }
+.assignee-edit-label { font-size:11px; color:#999; font-weight:600; white-space:nowrap; }
+.assignee-edit-btn { padding:4px 10px; border-radius:16px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; color:#666; transition:all 0.15s; }
+.assignee-edit-btn.active { background:var(--gc); border-color:var(--gc); color:#1C1C1E; font-weight:700; }
+.assignee-edit-save { padding:4px 12px; border-radius:16px; border:none; background:var(--gc); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; cursor:pointer; color:#1C1C1E; }
+.meta-tag-clickable { cursor:pointer; text-decoration:underline dotted; }
+
+/* Edição inline de contato existente */
+.contact-edit-form { background:#FAFAF8; border-radius:14px; padding:14px; margin-top:8px; border:1.5px solid var(--gc); }
+.contact-edit-actions { display:flex; gap:8px; margin-top:10px; }
+.contact-edit-save { flex:1; background:var(--gc); border:none; border-radius:10px; padding:8px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:700; cursor:pointer; color:#1C1C1E; }
+.contact-edit-cancel { padding:8px 14px; border-radius:10px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#888; }
+.contact-edit-delete { padding:8px 14px; border-radius:10px; border:1.5px solid #FFE0E0; background:#FFF5F5; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#C07070; }
+
+/* ── Imóveis ── */
+.imovel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.imovel-header-title { font-family:'Playfair Display',serif; font-size:18px; color:#1C1C1E; font-weight:700; }
+.new-imovel-btn { background:var(--gc); border:none; border-radius:12px; padding:8px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; color:#1C1C1E; }
+.imovel-form { background:#fff; border-radius:18px; padding:18px; margin-bottom:18px; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
+.imovel-form-title { font-size:14px; font-weight:700; color:#1C1C1E; margin-bottom:14px; }
+.imovel-field { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.imovel-field-label { font-size:12px; color:#999; width:88px; flex-shrink:0; font-weight:500; }
+.imovel-field-input, .imovel-field-select { flex:1; border:1.5px solid #E8E0D8; border-radius:10px; padding:8px 12px; font-family:'DM Sans',sans-serif; font-size:13px; background:#FAFAF8; outline:none; color:#1C1C1E; }
+.imovel-field-input:focus, .imovel-field-select:focus { border-color:var(--gc); }
+.imovel-form-row { display:flex; gap:8px; margin-bottom:10px; }
+.imovel-form-row .imovel-field { flex:1; margin-bottom:0; }
+.imovel-form-actions { display:flex; gap:8px; margin-top:14px; }
+.imovel-save-btn { flex:1; background:var(--gc); border:none; border-radius:12px; padding:10px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; color:#1C1C1E; }
+.imovel-cancel-btn { padding:10px 16px; border-radius:12px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; color:#888; }
+.imovel-group-label { font-size:11px; font-weight:700; letter-spacing:1px; color:#D4A57A; text-transform:uppercase; margin:16px 0 8px; display:flex; align-items:center; gap:6px; }
+.imovel-group-count { font-size:11px; background:#FDF0E8; color:#C8824A; border-radius:6px; padding:2px 8px; font-weight:500; }
+.imovel-card { background:#fff; border-radius:16px; padding:16px; margin-bottom:10px; box-shadow:0 1px 6px rgba(0,0,0,0.06); }
+.imovel-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
+.imovel-card-nome { font-size:15px; font-weight:700; color:#1C1C1E; }
+.imovel-card-loc { font-size:12px; color:#888; margin-top:2px; }
+.imovel-card-badges { display:flex; gap:5px; flex-wrap:wrap; margin-top:6px; }
+.imovel-badge { font-size:11px; border-radius:6px; padding:2px 8px; font-weight:600; }
+.imovel-badge-tipo { background:#FDF0E8; color:#C8824A; }
+.imovel-badge-status { background:#E8F5EE; color:#3A9060; }
+.imovel-badge-status.locado { background:#EEF4FC; color:#4A80D9; }
+.imovel-badge-status.construcao { background:#FFF8E8; color:#C09030; }
+.imovel-badge-status.venda { background:#FFE8E8; color:#C04040; }
+.imovel-badge-status.vendido { background:#F0E8FF; color:#7040C0; }
+.imovel-badge-quitado { background:#E8F5EE; color:#3A9060; }
+.imovel-badge-nquitado { background:#FFE8E8; color:#C04040; }
+.imovel-card-valores { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+.imovel-valor-item { font-size:12px; color:#666; }
+.imovel-valor-label { font-size:10px; color:#AAA; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:1px; }
+.imovel-edit-btn { background:none; border:none; font-size:15px; cursor:pointer; color:#C8A87E; padding:2px; flex-shrink:0; }
+.imovel-inline-form { background:#FAFAF8; border-radius:12px; padding:14px; margin-top:10px; border:1.5px solid var(--gc); }
+.imovel-inline-actions { display:flex; gap:8px; margin-top:12px; }
+.imovel-inline-save { flex:1; background:var(--gc); border:none; border-radius:10px; padding:8px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:700; cursor:pointer; color:#1C1C1E; }
+.imovel-inline-cancel { padding:8px 14px; border-radius:10px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#888; }
+.imovel-inline-delete { padding:8px 14px; border-radius:10px; border:1.5px solid #FFE0E0; background:#FFF5F5; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#C07070; }
+
+/* ── Imóveis: painel de resumo ── */
+.imovel-resumo { background:linear-gradient(135deg,#2A1F10 0%,#1C1C1E 100%); border-radius:18px; padding:16px 18px; margin-bottom:18px; border:1px solid #5A3A1A; }
+.imovel-resumo-title { font-size:11px; font-weight:700; letter-spacing:1px; color:#C8A87E; text-transform:uppercase; margin-bottom:12px; }
+.imovel-resumo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.imovel-resumo-item { text-align:center; }
+.imovel-resumo-num { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#E8A87C; line-height:1.1; }
+.imovel-resumo-lbl { font-size:10px; color:#888; font-weight:500; margin-top:2px; }
+.imovel-resumo-total { grid-column:1/-1; border-top:1px solid #3A2A18; margin-top:8px; padding-top:10px; }
+.imovel-resumo-total .imovel-resumo-num { font-size:26px; color:#F7D070; }
+
+/* ── Imóveis: contratos ── */
+.imovel-contratos { margin-top:12px; border-top:1px solid #F0EDE8; padding-top:10px; }
+.imovel-contratos-title { font-size:11px; font-weight:700; letter-spacing:0.8px; color:#C8A87E; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+.add-contrato-btn { background:var(--gc); border:none; border-radius:8px; padding:3px 10px; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600; cursor:pointer; color:#1C1C1E; }
+.contrato-form { background:#F9F7F4; border-radius:10px; padding:10px; margin-bottom:8px; border:1.5px solid var(--gc); }
+.contrato-field { display:flex; align-items:center; gap:6px; margin-bottom:7px; }
+.contrato-field-label { font-size:11px; color:#999; width:72px; flex-shrink:0; font-weight:500; }
+.contrato-field-input, .contrato-field-select { flex:1; border:1.5px solid #E8E0D8; border-radius:8px; padding:6px 10px; font-family:'DM Sans',sans-serif; font-size:12px; background:#fff; outline:none; color:#1C1C1E; }
+.contrato-field-input:focus, .contrato-field-select:focus { border-color:var(--gc); }
+.contrato-form-actions { display:flex; gap:6px; margin-top:8px; }
+.contrato-save-btn { flex:1; background:var(--gc); border:none; border-radius:8px; padding:7px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; color:#1C1C1E; }
+.contrato-cancel-btn { padding:7px 12px; border-radius:8px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#888; }
+.contrato-card { background:#F9F7F4; border-radius:10px; padding:10px 12px; margin-bottom:6px; display:flex; align-items:flex-start; gap:8px; border:1px solid #EDE8E0; }
+.contrato-card-body { flex:1; min-width:0; }
+.contrato-card-nome { font-size:13px; font-weight:600; color:#1C1C1E; }
+.contrato-card-meta { font-size:11px; color:#999; margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; }
+.contrato-card-link { font-size:11px; color:#4A90D9; text-decoration:none; background:#EEF4FC; border-radius:5px; padding:1px 7px; }
+.contrato-card-edit { margin-top:4px; }
+.contrato-edit-form { background:#fff; border-radius:8px; padding:8px 10px; margin-top:6px; border:1.5px solid var(--gc); }
+.contrato-del-btn { background:none; border:none; color:#D0C8C0; cursor:pointer; font-size:14px; padding:2px; flex-shrink:0; }
+.contrato-edit-btn { background:none; border:none; color:#C8A87E; cursor:pointer; font-size:13px; padding:2px; }
+
+/* ── Upload PDF contrato ── */
+.contrato-pdf-upload { margin-bottom:7px; }
+.contrato-pdf-label { font-size:11px; color:#999; font-weight:500; margin-bottom:4px; display:block; }
+.contrato-pdf-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1.5px dashed #E8E0D8; background:#FAFAF8; font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; color:#888; transition:all 0.2s; }
+.contrato-pdf-btn:hover { border-color:var(--gc); color:var(--gc); }
+.contrato-pdf-name { font-size:11px; color:#4A90D9; margin-top:3px; word-break:break-all; }
+.contrato-pdf-link { font-size:11px; color:#4A90D9; text-decoration:none; background:#EEF4FC; border-radius:5px; padding:2px 8px; display:inline-flex; align-items:center; gap:3px; margin-top:3px; }
+.contrato-pdf-remove { background:none; border:none; color:#C07070; font-size:11px; cursor:pointer; margin-left:4px; }
+
+/* Edição inline do texto da tarefa */
+.task-text-edit { width:100%; border:1.5px solid var(--gc); border-radius:8px; padding:5px 8px; font-family:'DM Sans',sans-serif; font-size:14px; background:#FAFAF8; outline:none; color:#1C1C1E; }
+.task-text-actions { display:flex; gap:6px; margin-top:4px; }
+.task-text-save { padding:4px 12px; border-radius:8px; border:none; background:var(--gc); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; cursor:pointer; color:#1C1C1E; }
+.task-text-cancel { padding:4px 10px; border-radius:8px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; color:#888; }
+
+/* ── Edição de data do grupo de viagem ── */
+.travel-trip-title { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.travel-trip-date-edit-btn { background:none; border:1.5px dashed #3D3560; border-radius:6px; padding:2px 8px; font-size:11px; color:#B5A8D8; cursor:pointer; font-family:'DM Sans',sans-serif; white-space:nowrap; }
+.travel-trip-date-edit-btn:hover { background:#2C2050; }
+.travel-trip-date-row { display:flex; align-items:center; gap:6px; margin-top:6px; padding:6px 10px; background:#2C2050; border-radius:10px; border:1.5px solid #3D3560; flex-wrap:wrap; }
+.travel-trip-date-row label { font-size:11px; color:#B5A8D8; font-weight:600; }
+.travel-trip-date-input { background:#1C1C1E; border:1.5px solid #3D3560; border-radius:8px; padding:4px 8px; color:#F5F0E8; font-family:'DM Sans',sans-serif; font-size:12px; outline:none; }
+.travel-trip-date-input:focus { border-color:#B5A8D8; }
+.travel-trip-date-save { padding:4px 12px; border-radius:8px; border:none; background:#B5A8D8; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; cursor:pointer; color:#1C1C1E; }
+.travel-trip-date-clear { padding:4px 10px; border-radius:8px; border:1.5px solid #3D3560; background:transparent; font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; color:#888; }
+.travel-trip-date-cancel { padding:4px 10px; border-radius:8px; border:1.5px solid #3D3560; background:transparent; font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; color:#888; }
+
+/* ── Dark mode ── */
+body.dark { background:#1C1C1E; }
+body.dark #app { background:#1C1C1E; }
+body.dark .content { background:#1C1C1E; }
+body.dark .task-card, body.dark .stat-card, body.dark .add-section,
+body.dark .house-selector, body.dark .contact-card, body.dark .imovel-card,
+body.dark .contrato-card, body.dark .imovel-form, body.dark .contact-form { background:#2C2C2E; color:#F5F0E8; box-shadow:0 1px 6px rgba(0,0,0,0.3); }
+body.dark .task-text, body.dark .imovel-card-nome, body.dark .contact-name { color:#F5F0E8; }
+body.dark .add-input, body.dark .address-input, body.dark .notes-input,
+body.dark .due-date-input, body.dark .contact-field-input, body.dark .contact-field-select { background:#3A3A3C; color:#F5F0E8; border-color:#48484A; }
+body.dark .section-label { color:#888; }
+body.dark .sync-note { background:#2C2C2E; }
+body.dark .empty { color:#555; }
+body.dark .task-meta span, body.dark .meta-tag { background:#3A3A3C; color:#999; }
+.dark-toggle { background:none; border:1px solid #3C3C3E; border-radius:20px; padding:5px 10px; font-size:12px; cursor:pointer; color:#888; font-family:'DM Sans',sans-serif; }
+body.dark .dark-toggle { color:#F7D070; border-color:#555; }
+
+/* ── Busca global ── */
+.global-search-bar { display:flex; align-items:center; gap:8px; padding:8px 16px 10px; background:#1C1C1E; }
+.global-search-input { flex:1; background:#2C2C2E; border:1.5px solid #3C3C3E; border-radius:12px; padding:9px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:#F5F0E8; outline:none; }
+.global-search-input::placeholder { color:#555; }
+.global-search-input:focus { border-color:var(--gc); }
+.global-search-close { background:none; border:none; color:#888; font-size:18px; cursor:pointer; padding:4px; }
+.search-result-group { font-size:10px; font-weight:700; letter-spacing:1px; color:#AAA; text-transform:uppercase; padding:6px 0 2px; }
+.search-icon-btn { background:none; border:none; color:#888; font-size:18px; cursor:pointer; padding:4px 8px; }
+
+/* ── Filtro Meu ── */
+.my-filter-bar { display:flex; align-items:center; gap:6px; padding:4px 16px 8px; background:#1C1C1E; flex-wrap:wrap; }
+.my-filter-btn { padding:4px 12px; border-radius:16px; border:1.5px solid #3C3C3E; background:transparent; font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; color:#888; transition:all 0.15s; }
+.my-filter-btn.active { background:var(--gc); border-color:var(--gc); color:#1C1C1E; font-weight:700; }
+
+/* ── Tags ── */
+.task-tags { display:flex; gap:4px; flex-wrap:wrap; margin-top:4px; }
+.task-tag { font-size:10px; border-radius:5px; padding:1px 6px; font-weight:600; cursor:pointer; }
+.task-tag-urgente { background:#FFE0E0; color:#C04040; }
+.task-tag-aguardando { background:#FFF5E0; color:#C08020; }
+.task-tag-orcamento { background:#E0F0FF; color:#2060C0; }
+.task-tag-importante { background:#F0E0FF; color:#8040C0; }
+.add-tag-row { display:flex; gap:4px; flex-wrap:wrap; margin-top:6px; align-items:center; }
+.add-tag-lbl { font-size:11px; color:#AAA; }
+.add-tag-btn { font-size:10px; padding:2px 8px; border-radius:12px; border:1.5px solid #E8E0D8; background:transparent; cursor:pointer; color:#888; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+.add-tag-btn.active { font-weight:700; }
+
+/* ── Endereço editável inline ── */
+.address-edit-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:6px; padding:7px 10px; background:#F9F7F4; border-radius:10px; border:1.5px solid var(--gc); }
+.address-edit-input { flex:1; border:1.5px solid #E8E0D8; border-radius:8px; padding:5px 8px; font-family:'DM Sans',sans-serif; font-size:12px; background:#fff; outline:none; color:#444; min-width:120px; }
+.address-edit-input:focus { border-color:var(--gc); }
+.address-edit-save { padding:5px 12px; border-radius:8px; border:none; background:var(--gc); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; cursor:pointer; color:#1C1C1E; }
+.address-edit-cancel { padding:5px 10px; border-radius:8px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; color:#888; }
+.map-link-clickable { cursor:pointer; }
+
+/* ── Progresso viagem ── */
+.trip-progress-bar { height:4px; background:#2C2050; border-radius:2px; margin-top:6px; overflow:hidden; }
+.trip-progress-fill { height:100%; background:#B5A8D8; border-radius:2px; transition:width 0.3s; }
+.trip-progress-lbl { font-size:10px; color:#888; margin-top:2px; }
+
+/* ── Dashboard ── */
+.dash-section { margin-bottom:20px; }
+.dash-section-title { font-family:'Playfair Display',serif; font-size:14px; font-weight:700; color:#1C1C1E; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.dash-stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.dash-stat { background:#fff; border-radius:14px; padding:12px 8px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+.dash-stat-num { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--gc); }
+.dash-stat-lbl { font-size:10px; color:#AAA; margin-top:2px; }
+.dash-stat-sub { font-size:9px; color:#CCC; margin-top:1px; }
+.dash-trip-card { background:#fff; border-radius:12px; padding:12px 14px; margin-bottom:8px; box-shadow:0 1px 6px rgba(0,0,0,0.05); display:flex; align-items:center; gap:10px; }
+.dash-trip-days { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#B5A8D8; min-width:36px; text-align:center; }
+.dash-trip-info { flex:1; }
+.dash-trip-name { font-size:13px; font-weight:600; color:#1C1C1E; }
+.dash-trip-date { font-size:11px; color:#888; }
+.dash-trip-prog { font-size:11px; color:#B5A8D8; }
+.dash-filter-bar { display:flex; gap:6px; margin-bottom:14px; }
+.dash-filter-btn { padding:5px 14px; border-radius:16px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#666; }
+.dash-filter-btn.active { background:var(--gc); border-color:var(--gc); color:#1C1C1E; font-weight:700; }
+.dash-fds-card { background:#fff; border-radius:12px; padding:10px 14px; margin-bottom:6px; box-shadow:0 1px 6px rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center; }
+.dash-fds-dates { font-size:12px; color:#1C1C1E; font-weight:500; }
+.dash-fds-who { display:flex; gap:8px; }
+.dash-fds-person { font-size:11px; padding:2px 8px; border-radius:10px; background:#F5F0E8; color:#666; font-weight:500; }
+.dash-fds-person.highlight { background:var(--gc); color:#1C1C1E; font-weight:700; }
+.dash-task-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #F5F0E8; }
+.dash-task-text { flex:1; font-size:12px; color:#1C1C1E; }
+.dash-task-group { font-size:10px; background:#F5F0E8; border-radius:5px; padding:1px 6px; color:#888; }
+
+/* ── Mercado ── */
+.mercado-header { background:linear-gradient(135deg,#1A3A1A 0%,#1C1C1E 100%); border-radius:18px; padding:14px 16px; margin-bottom:14px; border:1px solid #2A5A2A; }
+.mercado-casa-selector { display:flex; gap:6px; flex-wrap:wrap; }
+.mercado-casa-btn { padding:6px 14px; border-radius:20px; border:1.5px solid #2A5A2A; background:transparent; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#7BBF7B; transition:all 0.2s; }
+.mercado-casa-btn.active { background:#7BBF7B; border-color:#7BBF7B; color:#1C1C1E; font-weight:700; }
+.mercado-search { width:100%; background:#1C1C1E; border:1.5px solid #2A5A2A; border-radius:10px; padding:8px 12px; color:#F5F0E8; font-family:'DM Sans',sans-serif; font-size:13px; outline:none; margin-top:10px; }
+.mercado-search::placeholder { color:#3A5A3A; }
+.mercado-add-form { background:#fff; border-radius:16px; padding:14px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+.mercado-add-row { display:flex; gap:8px; align-items:center; }
+.mercado-add-input { flex:1; border:1.5px solid #E8E0D8; border-radius:12px; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:14px; background:#FAFAF8; outline:none; color:#1C1C1E; }
+.mercado-add-input:focus { border-color:#8FBC8F; }
+.mercado-qty-input { width:60px; border:1.5px solid #E8E0D8; border-radius:10px; padding:10px 8px; font-family:'DM Sans',sans-serif; font-size:13px; background:#FAFAF8; outline:none; color:#1C1C1E; text-align:center; }
+.mercado-qty-input:focus { border-color:#8FBC8F; }
+.mercado-add-btn { width:44px; height:44px; border-radius:13px; border:none; background:#8FBC8F; color:#1C1C1E; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.mercado-cat-section { margin-bottom:20px; }
+.mercado-cat-header { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.mercado-cat-title { font-size:11px; font-weight:700; letter-spacing:1px; color:#5A9A5A; text-transform:uppercase; }
+.mercado-cat-count { font-size:10px; background:#E8F5E8; color:#3A7A3A; border-radius:5px; padding:1px 7px; }
+.mercado-item { background:#fff; border-radius:12px; padding:10px 14px; margin-bottom:6px; display:flex; align-items:center; gap:10px; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+.mercado-item.done { opacity:0.5; }
+.mercado-item-check { width:22px; height:22px; border-radius:50%; border:2px solid #8FBC8F; background:transparent; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; }
+.mercado-item-check.done { background:#8FBC8F; }
+.mercado-item-nome { flex:1; font-size:13px; color:#1C1C1E; }
+.mercado-item-nome.done { text-decoration:line-through; color:#AAA; }
+.mercado-item-qty { font-size:12px; color:#888; background:#F0F0F0; border-radius:6px; padding:2px 8px; white-space:nowrap; }
+.mercado-item-casa { font-size:10px; color:#5A9A5A; background:#E8F5E8; border-radius:5px; padding:1px 6px; }
+.mercado-del-btn { background:none; border:none; color:#D0C8C0; cursor:pointer; font-size:14px; padding:2px; }
+.mercado-stats { display:flex; gap:8px; margin-bottom:14px; }
+.mercado-stat { flex:1; background:#fff; border-radius:12px; padding:10px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+.mercado-stat-num { font-size:20px; font-weight:700; color:#8FBC8F; font-family:'Playfair Display',serif; }
+.mercado-stat-lbl { font-size:10px; color:#AAA; }
+
+/* ── Renovar ── */
+.renovar-header { background:linear-gradient(135deg,#2A1A08 0%,#1C1C1E 100%); border-radius:18px; padding:14px 16px; margin-bottom:14px; border:1px solid #6A3A1A; }
+.renovar-header-title { font-family:'Playfair Display',serif; color:#D4956A; font-size:15px; font-weight:700; }
+.renovar-stats-mini { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
+.renovar-stat-mini { font-size:11px; padding:3px 10px; border-radius:10px; font-weight:600; }
+.renovar-stat-ok { background:#1A3A1A; color:#7BBF7B; }
+.renovar-stat-warn { background:#3A2A08; color:#F7D070; }
+.renovar-stat-vencido { background:#3A1A1A; color:#C07070; }
+.renovar-form { background:#fff; border-radius:16px; padding:16px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+.renovar-field { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+.renovar-field-lbl { font-size:12px; color:#999; width:80px; flex-shrink:0; font-weight:500; }
+.renovar-field-input, .renovar-field-select { flex:1; border:1.5px solid #E8E0D8; border-radius:10px; padding:8px 12px; font-family:'DM Sans',sans-serif; font-size:13px; background:#FAFAF8; outline:none; color:#1C1C1E; }
+.renovar-field-input:focus, .renovar-field-select:focus { border-color:#D4956A; }
+.renovar-card { background:#fff; border-radius:14px; padding:14px; margin-bottom:10px; box-shadow:0 1px 6px rgba(0,0,0,0.05); border-left:4px solid #E8E0D8; }
+.renovar-card.ok { border-left-color:#7BBF7B; }
+.renovar-card.warn { border-left-color:#F7D070; }
+.renovar-card.vencido { border-left-color:#C07070; }
+.renovar-card-header { display:flex; align-items:flex-start; justify-content:space-between; }
+.renovar-card-nome { font-size:14px; font-weight:600; color:#1C1C1E; }
+.renovar-card-tipo { font-size:11px; color:#999; margin-top:2px; }
+.renovar-card-meta { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.renovar-badge { font-size:11px; border-radius:6px; padding:2px 8px; font-weight:600; }
+.renovar-badge-ok { background:#E8F5EE; color:#3A9060; }
+.renovar-badge-warn { background:#FFF8E0; color:#C09030; }
+.renovar-badge-vencido { background:#FFE8E8; color:#C04040; }
+.renovar-badge-neutro { background:#F5F0E8; color:#888; }
+.renovar-countdown { font-size:12px; font-weight:600; }
+.renovar-edit-inline { background:#F9F7F4; border-radius:10px; padding:12px; margin-top:8px; border:1.5px solid #D4956A; }
+.renovar-edit-actions { display:flex; gap:6px; margin-top:10px; }
+.renovar-save-btn { flex:1; background:#D4956A; border:none; border-radius:8px; padding:8px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:700; cursor:pointer; color:#1C1C1E; }
+.renovar-cancel-btn { padding:8px 12px; border-radius:8px; border:1.5px solid #E8E0D8; background:transparent; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#888; }
+.renovar-del-btn { padding:8px 12px; border-radius:8px; border:1.5px solid #FFE0E0; background:#FFF5F5; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:#C07070; }
+.renovar-edit-btn { background:none; border:none; color:#D4956A; cursor:pointer; font-size:14px; padding:2px; }
+.renovar-new-btn { background:#D4956A; border:none; border-radius:12px; padding:8px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; color:#1C1C1E; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="loading">
+    <div class="loading-spinner"></div>
+    <div>Conectando...</div>
+  </div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, remove, update }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ── FIREBASE CONFIG ────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyAx95UFNGaNFe-SGgFnZFcx-3TDFH_U92o",
+  authDomain: "familia-app-5cd84.firebaseapp.com",
+  databaseURL: "https://familia-app-5cd84-default-rtdb.firebaseio.com",
+  projectId: "familia-app-5cd84",
+  storageBucket: "familia-app-5cd84.firebasestorage.app",
+  messagingSenderId: "419411824094",
+  appId: "1:419411824094:web:3f84321668c3aab892214f",
+  measurementId: "G-9VET0V5QGQ"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── CONSTANTS ──────────────────────────────────────────────────────
+const GROUPS = [
+  { id: "dashboard",   label: "Dashboard",   emoji: "📊", color: "#6C8EBF" },
+  { id: "casa",        label: "Casa",        emoji: "🏠", color: "#E8A87C" },
+  { id: "compras",     label: "Compras",     emoji: "🛒", color: "#85C1A3" },
+  { id: "dejulie",     label: "Dejulie",     emoji: "💛", color: "#F7D070" },
+  { id: "viladejulie", label: "Vila Dejulie",emoji: "🏡", color: "#F0A8C0" },
+  { id: "saude",       label: "Saúde",       emoji: "🏥", color: "#7EC8C8" },
+  { id: "viagens",     label: "Viagens",     emoji: "✈️", color: "#B5A8D8" },
+  { id: "contatos",    label: "Contatos",    emoji: "👥", color: "#C8A87E" },
+  { id: "imoveis",     label: "Imóveis",     emoji: "🏘", color: "#D4A57A" },
+  { id: "mercado",     label: "Mercado",     emoji: "🧺", color: "#8FBC8F" },
+  { id: "renovar",     label: "Renovar",     emoji: "🔄", color: "#D4956A" },
+  { id: "fds",         label: "FDS",         emoji: "📅", color: "#7BBF8E" },
+  { id: "outros",      label: "Outros",      emoji: "🎯", color: "#A8B8D8" },
+];
+const HOUSES = [
+  { id: "itaim",     label: "Itaim",     emoji: "🏙" },
+  { id: "itanhaem",  label: "Itanhaém",  emoji: "🏖" },
+  { id: "jacuma",    label: "Jacumã",    emoji: "🌴" },
+];
+const HEALTH_CATS   = ["Remédio","Exame","Médico","Dentista","Outros"];
+const HEALTH_EMOJIS = {"Remédio":"💊","Exame":"🔬","Médico":"👨‍⚕️","Dentista":"🦷","Outros":"🏥"};
+const TRAVEL_CATS   = ["Aéreo","Documentos","Hospedagem","Transporte","Passeios","Bagagem","Saúde","Outros"];
+const CONTACT_SECS  = ["Viagens","Dejulie","Vila Dejulie","Serviço","Outros"];
+const SHOPPING_CATS = ["Mercado","Roupa","Comemoração","Remédio","Suplemento","Outros"];
+const SHOPPING_EMOJIS = {"Mercado":"🛒","Roupa":"👕","Comemoração":"🎉","Remédio":"💊","Suplemento":"💪","Outros":"📦"};
+const ASSIGNEES     = ["Daniel","Natalia","Casal","Joaquim","Isabelle","Família"];
+const GROUP_NAMES  = {"casa":"Casa","compras":"Compras","dejulie":"Dejulie","viladejulie":"Vila Dejulie",
+  "saude":"Saúde","viagens":"Viagens","contatos":"Contatos","imoveis":"Imóveis",
+  "mercado":"Mercado","renovar":"Renovar","fds":"FDS","outros":"Outros","dashboard":"Dashboard"};
+const GROUP_EMOJIS = {"casa":"🏠","compras":"🛒","dejulie":"💛","viladejulie":"🏡",
+  "saude":"🏥","viagens":"✈️","contatos":"👥","imoveis":"🏘","mercado":"🧺",
+  "renovar":"🔄","fds":"📅","outros":"🎯","dashboard":"📊"};
+
+const MERCADO_CASAS = ["Itaim","Itanhaém","Jacumã"];
+const MERCADO_CASA_EMOJIS = {"Itaim":"🏙","Itanhaém":"🏖","Jacumã":"🌴"};
+const MERCADO_CATS = ["Higiene","Limpeza","Hortifruti","Proteínas","Crianças","Laticínios","Padaria","Congelados","Outros"];
+const MERCADO_CAT_EMOJIS = {"Higiene":"🧼","Limpeza":"🧹","Hortifruti":"🥦","Proteínas":"🥩","Crianças":"👶","Laticínios":"🧀","Padaria":"🍞","Congelados":"❄️","Outros":"📦"};
+// Mapeamento de palavras-chave para categoria automática
+const MERCADO_KEYWORDS = {
+  "Higiene":   ["sabonete","shampoo","condicionador","creme","escova","pasta","dental","desodorante","absorvente","fralda","cotonete","algodão","lenço","perfume","talco"],
+  "Limpeza":   ["detergente","sabão","amaciante","desinfetante","água sanitária","pano","esponja","rodo","vassoura","limpeza","multiuso","omo","ariel","veja","flash"],
+  "Hortifruti":["alface","tomate","cebola","alho","cenoura","beterraba","pepino","limão","laranja","banana","maçã","uva","abacaxi","manga","melão","morango","rúcula","espinafre","brócolis","batata","inhame","abobrinha","chuchu","pimentão","milho","ervilha","vagem"],
+  "Proteínas": ["frango","carne","peixe","atum","sardinha","camarão","linguiça","presunto","salame","bacon","ovo","feijão","lentilha","grão","chia","quinoa","proteína"],
+  "Crianças":  ["fralda","mamadeira","papinha","neston","danone","yakult","danoninho","sucrilhos","cereal","biscoito","bolinha","kinder","leite ninho","mucilon"],
+  "Laticínios":["leite","queijo","iogurte","manteiga","margarina","creme de leite","requeijão","mussarela","parmesão","ricota","nata","chantilly"],
+  "Padaria":   ["pão","bolo","bisnaga","torrada","croissant","baguete","farinha","fermento","trigo","tapioca","granola","aveia"],
+  "Congelados":["sorvete","pizza congelada","lasanha","hambúrguer","nugget","batata frita","salmão congelado","empanado","ravioli","panqueca"],
+};
+function inferMercadoCat(nome) {
+  const lower = (nome||"").toLowerCase();
+  for (const [cat, keys] of Object.entries(MERCADO_KEYWORDS)) {
+    if (keys.some(k => lower.includes(k))) return cat;
+  }
+  return "Outros";
+}
+
+const RENOVAR_TIPOS = ["Seguro","Documento","Benefício Funcionário","Pagamento","Assinatura","Licença","Outro"];
+const RENOVAR_TIPO_EMOJIS = {"Seguro":"🛡️","Documento":"📄","Benefício Funcionário":"👷","Pagamento":"💰","Assinatura":"📋","Licença":"🔑","Outro":"🔄"};
+const RENOVAR_RECORRENCIA = ["Anual","Semestral","Trimestral","Mensal","Único"];
+const RENOVAR_STATUS = ["Em dia","Vencendo em breve","Vencido","Cancelado"];
+
+const IMOVEL_TIPOS   = ["Casa","Apartamento","Lote","Comercial","Loja","Outros"];
+const IMOVEL_STATUS  = ["Próprio","Locado","Em construção","À venda","Vendido"];
+const IMOVEL_GRUPOS  = ["Casa","Apartamento","Lote","Comercial","Loja","Outros"];
+const IMOVEL_GRUPO_EMOJIS = {"Casa":"🏠","Apartamento":"🏢","Lote":"🌿","Comercial":"🏪","Loja":"🏬","Outros":"🏘"};
+
+// ── STATE ──────────────────────────────────────────────────────────
+let state = {
+  activeGroup: "dashboard", tasks: [], contacts: [],
+  assignee: "Daniel",
+  dueDate: "", dueTime: "", addToCalendar: false,
+  travelName: "", travelDate: "", travelCategory: "Documentos",
+  editingTripDate: {},  // tripName -> bool
+  shoppingCategory: "Mercado",
+  healthCategory: "Médico", healthMedico: "", healthRetorno: "", selectedHouse: null,
+  showContactForm: false, contactSearch: "", editingContactId: null,
+  cf: { photo:null, name:"", company:"", section:"Outros", city:"", phone:"", site:"", email:"" },
+  editingNotes: {}, notesVal: {}, editingAssignee: {}, editingText: {}, textVal: {}, editingAddress: {}, addressVal: {},
+  newTags: [],
+  _pdfTemp: {}, _snap_main: "", _snap_address: "", _snap_notes: "",
+  editingDateTime: {},  // tracks which task has date/time editor open
+  _dtEdit: {},           // temp date/time values while editing
+  syncStatus: "syncing",
+  imoveis: [], editingImovelId: null, showImovelForm: false,
+  showContratoForm: {},   // imovelId -> bool
+  editingContratoId: {},  // imovelId -> contratoId
+  _contratoSnap: {},      // temp contrato fields while editing
+
+  fds: {},
+  hidePast: true,
+  // Mercado
+  mercadoCasa: "Itaim", mercadoSearch: "",
+  // Renovar
+  renovar: [], showRenovarForm: false, editingRenovarId: null,
+  // Dashboard
+  dashFilter: "Daniel",
+  // Global
+  globalSearch: "", showGlobalSearch: false, darkMode: false, myFilter: "Todos",
+};
+
+// ── FIREBASE SYNC ──────────────────────────────────────────────────
+// Listen for real-time updates
+onValue(ref(db, "tasks"), snap => {
+  const data = snap.val();
+  state.tasks = data ? Object.values(data).sort((a,b) => b.id - a.id) : [];
+  state.syncStatus = "online";
+  safeRender();
+}, err => { state.syncStatus = "offline"; safeRender(); });
+
+onValue(ref(db, "contacts"), snap => {
+  const data = snap.val();
+  state.contacts = data ? Object.values(data).sort((a,b) => b.id - a.id) : [];
+  safeRender();
+});
+
+onValue(ref(db, "imoveis"), snap => {
+  const data = snap.val();
+  state.imoveis = data ? Object.values(data).sort((a,b)=> (a.nome||"").localeCompare(b.nome||"")) : [];
+  safeRender();
+});
+
+async function fbSaveImovel(im) {
+  setSyncStatus("syncing");
+  try { await set(ref(db, `imoveis/${im.id}`), im); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error("fbSaveImovel:", e); }
+}
+async function fbDeleteImovel(id) {
+  setSyncStatus("syncing");
+  try { await remove(ref(db, `imoveis/${id}`)); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error("fbDeleteImovel:", e); }
+}
+
+onValue(ref(db, "renovar"), snap => {
+  const data = snap.val();
+  state.renovar = data ? Object.values(data).sort((a,b)=> (a.vencimento||"9").localeCompare(b.vencimento||"9")) : [];
+  safeRender();
+});
+async function fbSaveRenovar(item) {
+  setSyncStatus("syncing");
+  try { await set(ref(db, `renovar/${item.id}`), item); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error(e); }
+}
+async function fbDeleteRenovar(id) {
+  setSyncStatus("syncing");
+  try { await remove(ref(db, `renovar/${id}`)); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error(e); }
+}
+
+onValue(ref(db, "fds"), snap => {
+  state.fds = snap.val() || {};
+  const active = document.activeElement;
+  if (active && active.classList.contains("fds-event-input")) return;
+  render();
+});
+
+async function fbSaveFds(weekKey, data) {
+  try { await set(ref(db, `fds/${weekKey}`), data); }
+  catch(e) { console.error("fbSaveFds:", e); setSyncStatus("offline"); }
+}
+
+async function fbSaveTask(task) {
+  setSyncStatus("syncing");
+  try { await set(ref(db, `tasks/${task.id}`), task); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error("fbSaveTask:", e); }
+}
+async function fbDeleteTask(id) {
+  setSyncStatus("syncing");
+  try { await remove(ref(db, `tasks/${id}`)); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error("fbDeleteTask:", e); }
+}
+async function fbUpdateTask(id, fields) {
+  setSyncStatus("syncing");
+  try { await update(ref(db, `tasks/${id}`), fields); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error("fbUpdateTask:", e); }
+}
+async function fbSaveContact(contact) {
+  setSyncStatus("syncing");
+  try { await set(ref(db, `contacts/${contact.id}`), contact); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error("fbSaveContact:", e); }
+}
+async function fbDeleteContact(id) {
+  setSyncStatus("syncing");
+  try { await remove(ref(db, `contacts/${id}`)); setSyncStatus("online"); }
+  catch(e) { setSyncStatus("offline"); console.error("fbDeleteContact:", e); }
+}
+
+function setSyncStatus(s) {
+  state.syncStatus = s;
+  const el = document.getElementById("sync-badge");
+  if (!el) return;
+  if (s === "syncing") { el.textContent = "⏳ Sincronizando..."; el.className = "sync-badge syncing"; }
+  else if (s === "online") { el.textContent = "🟢 Sincronizado"; el.className = "sync-badge"; }
+  else { el.textContent = "🔴 Offline"; el.className = "sync-badge offline"; }
+}
+
+// ── RENDER ──────────────────────────────────────────────────────────
+// safeRender: used by Firebase listeners — won't re-render if user is typing in a text input
+function safeRender() {
+  const active = document.activeElement;
+  const inputTags = ["INPUT","TEXTAREA","SELECT"];
+  const typingInputIds = ["main-input","travel-name-input","address-input","notes-input","contacts-search"];
+  const inTripDateEdit = active && active.classList?.contains("travel-trip-date-input");
+  // Também protege qualquer input/textarea ativo em formulários de imóvel e contrato
+  const inImovelForm = active && (active.closest?.('.imovel-inline-form') || active.closest?.('.imovel-form') || active.closest?.('.contrato-form') || active.closest?.('.contrato-edit-form') || active.closest?.('.contact-edit-form') || active.closest?.('.contact-form') || active.closest?.('.renovar-form') || active.closest?.('.renovar-edit-inline'));
+  if (active && inputTags.includes(active.tagName) && (typingInputIds.includes(active.id) || active.classList.contains("fds-event-input") || (active.type==="date"||active.type==="time") || inImovelForm || inTripDateEdit)) {
+    // Update sync badge without full re-render
+    setSyncStatus(state.syncStatus);
+    return;
+  }
+  render();
+}
+
+function render() {
+  const g = GROUPS.find(g => g.id === state.activeGroup);
+  if (!g) return;
+  document.documentElement.style.setProperty("--gc", g.color);
+  const appEl = document.getElementById("app");
+  if (appEl) appEl.innerHTML = buildApp();
+  // Rolar navbar para mostrar o tab ativo (importante no celular)
+  requestAnimationFrame(() => {
+    const activeTab = document.querySelector('.group-tab.active');
+    if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  });
+}
+
+function buildApp() {
+  const groupTasks = state.tasks.filter(t => t.group === state.activeGroup);
+  const pending = groupTasks.filter(t => !t.done);
+  const done    = groupTasks.filter(t =>  t.done);
+  const syncLabel = state.syncStatus === "syncing" ? "⏳ Sincronizando..."
+    : state.syncStatus === "offline" ? "🔴 Offline" : "🟢 Sincronizado";
+  const syncClass = state.syncStatus === "syncing" ? "sync-badge syncing"
+    : state.syncStatus === "offline" ? "sync-badge offline" : "sync-badge";
+
+  // Aplicar dark mode
+  if (state.darkMode) document.body.classList.add('dark');
+  else document.body.classList.remove('dark');
+
+  // Busca global ativa?
+  const searchBar = state.showGlobalSearch ? `
+    <div class="global-search-bar">
+      <input id="global-search-input" class="global-search-input" placeholder="🔍 Buscar em tudo..." value="${esc(state.globalSearch)}" oninput="S('globalSearch',this.value)">
+      <button class="global-search-close" onclick="S('showGlobalSearch',false);S('globalSearch','')">✕</button>
+    </div>` : "";
+
+  // Filtro "Meu" — mostrado em grupos de tarefas
+  const TASK_GROUPS = ["casa","compras","dejulie","viladejulie","saude","viagens","outros","mercado"];
+  const showMyFilter = TASK_GROUPS.includes(state.activeGroup);
+  const myFilterBar = showMyFilter ? `<div class="my-filter-bar">
+    <span style="font-size:11px;color:#888;font-weight:500">Ver:</span>
+    ${["Todos","Daniel","Natalia","Casal","Família"].map(f =>
+      `<button class="my-filter-btn${state.myFilter===f?" active":""}" onclick="S('myFilter','${f}')">${f}</button>`
+    ).join("")}
+  </div>` : "";
+
+  // Roteamento da tela ativa
+  const mainContent = state.showGlobalSearch && state.globalSearch
+    ? buildGlobalSearch()
+    : state.activeGroup === "dashboard" ? (typeof buildDashboard === 'function' ? buildDashboard() : '<div class="empty"><div class="empty-icon">📊</div><div>Dashboard carregando...</div></div>')
+    : state.activeGroup === "contatos"  ? buildContacts()
+    : state.activeGroup === "imoveis"   ? buildImoveis()
+    : state.activeGroup === "fds"       ? buildFDS()
+    : state.activeGroup === "mercado"   ? (typeof buildMercado === 'function' ? buildMercado() : '')
+    : state.activeGroup === "renovar"   ? (typeof buildRenovar === 'function' ? buildRenovar() : '')
+    : buildTasksSection(pending, done, groupTasks);
+
+  return `
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-title">Concierge<br>Familiar</div>
+        <div class="header-sub">Daniel &amp; Natalia</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="search-icon-btn" onclick="S('showGlobalSearch',!state.showGlobalSearch)" title="Busca global">🔍</button>
+        <button class="dark-toggle" onclick="S('darkMode',!state.darkMode)">${state.darkMode?"☀️":"🌙"}</button>
+        <div id="sync-badge" class="${syncClass}">${syncLabel}</div>
+      </div>
+    </div>
+    ${searchBar}
+    <div class="groups-nav">
+      ${GROUPS.map(g => `<button class="group-tab${g.id===state.activeGroup?" active":""}"
+        style="${g.id===state.activeGroup?`background:${g.color}`:""}"
+        onclick="setGroup('${g.id}')">${g.emoji} ${g.label}</button>`).join("")}
+    </div>
+    ${myFilterBar}
+  </div>
+  <div class="content">
+    ${mainContent}
+  </div>`;
+}
+
+function buildTasksSection(pending, done, groupTasks) {
+  // Aplicar filtro "Meu"
+  const mf = state.myFilter || "Todos";
+  if (mf !== "Todos") {
+    pending = pending.filter(t => t.assignee === mf || t.assignee === "Casal" || t.assignee === "Família");
+    done    = done.filter(t =>    t.assignee === mf || t.assignee === "Casal" || t.assignee === "Família");
+    groupTasks = [...pending, ...done];
+  }
+  const pct = groupTasks.length > 0 ? Math.round((done.length/groupTasks.length)*100) : 0;
+  return `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">${pending.length}</div><div class="stat-lbl">Pendentes</div></div>
+      <div class="stat-card"><div class="stat-num">${done.length}</div><div class="stat-lbl">Concluídas</div></div>
+      <div class="stat-card"><div class="stat-num">${pct}%</div><div class="stat-lbl">Progresso</div></div>
+    </div>
+    ${buildGroupHeader()}
+    ${buildHouseSelector()}
+    ${buildAddForm()}
+    ${buildTaskLists(pending, done, groupTasks)}`;
+}
+
+function buildGroupHeader() {
+  if (state.activeGroup === "viagens") return `
+    <div class="travel-header">
+      <div class="travel-header-title">✈️ Planejamento</div>
+      <input id="travel-name-input" class="travel-name-input" placeholder="Nome da viagem (ex: Ushuaia Junho)"
+        value="${esc(state.travelName)}">
+      <div class="travel-date-row">
+        <span class="travel-date-label">📅 Início:</span>
+        <input id="travel-date-input" type="date" class="travel-date-input" value="${state.travelDate}"
+          onchange="state.travelDate=this.value">
+      </div>
+      <div class="travel-cats">
+        ${TRAVEL_CATS.map(c=>`<button class="travel-cat-btn${c===state.travelCategory?" active":""}"
+          onclick="S('travelCategory','${c}')">${c}</button>`).join("")}
+      </div>
+    </div>`;
+  if (state.activeGroup === "saude") return `
+    <div class="health-header">
+      <div class="health-header-title">🏥 Categoria</div>
+      <div class="health-cats">
+        ${HEALTH_CATS.map(c=>`<button class="health-cat-btn${c===state.healthCategory?" active":""}"
+          onclick="S('healthCategory','${c}')">${c}</button>`).join("")}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <input id="health-medico-input" class="travel-name-input" placeholder="👨‍⚕️ Médico / Clínica" value="${esc(state.healthMedico||'')}" style="flex:1;min-width:120px">
+        <input id="health-retorno-input" type="date" class="travel-date-input" value="${state.healthRetorno||''}" onchange="state.healthRetorno=this.value" title="Data do próximo retorno">
+      </div>
+    </div>`;
+  if (state.activeGroup === "compras") return `
+    <div class="house-selector" style="background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,0.05)">
+      <div class="house-selector-title">🏡 Casa</div>
+      <div class="house-btns" style="margin-bottom:10px">
+        <button class="house-btn${state.selectedHouse===null?" active":""}" onclick="S('selectedHouse',null)">Todas</button>
+        ${HOUSES.map(h=>`<button class="house-btn${state.selectedHouse===h.id?" active":""}" onclick="S('selectedHouse','${h.id}')">${h.emoji} ${h.label}</button>`).join("")}
+      </div>
+      <div class="house-selector-title">🗂 Categoria</div>
+      <div class="house-btns">
+        ${SHOPPING_CATS.map(c=>`<button class="house-btn${c===state.shoppingCategory?" active":""}"
+          onclick="S('shoppingCategory','${c}')">${SHOPPING_EMOJIS[c]} ${c}</button>`).join("")}
+      </div>
+    </div>`;
+  return "";
+}
+
+function buildHouseSelector() {
+  if (state.activeGroup!=="casa" && state.activeGroup!=="compras") return "";
+  return `<div class="house-selector">
+    <div class="house-selector-title">🏡 Casa</div>
+    <div class="house-btns">
+      <button class="house-btn${state.selectedHouse===null?" active":""}" onclick="S('selectedHouse',null)">Todas</button>
+      ${HOUSES.map(h=>`<button class="house-btn${state.selectedHouse===h.id?" active":""}"
+        onclick="S('selectedHouse','${h.id}')">${h.emoji} ${h.label}</button>`).join("")}
+    </div>
+  </div>`;
+}
+
+function buildAddForm() {
+  const g = GROUPS.find(g=>g.id===state.activeGroup);
+  const hName = state.selectedHouse ? HOUSES.find(h=>h.id===state.selectedHouse) : null;
+  const ph = state.activeGroup==="viagens" ? `Nova tarefa — ${state.travelCategory}...`
+    : state.activeGroup==="saude" ? `Nova tarefa — ${state.healthCategory}...`
+    : state.activeGroup==="compras" ? `Adicionar em ${SHOPPING_EMOJIS[state.shoppingCategory]||""} ${state.shoppingCategory}...`
+    : hName ? `Nova tarefa — ${hName.emoji} ${hName.label}...`
+    : `Nova tarefa em ${g?.label}...`;
+  return `<div class="add-section">
+    <div class="add-row">
+      <input id="main-input" class="add-input" placeholder="${ph}"
+        onkeydown="if(event.key==='Enter')addTask()">
+      <button class="add-btn" onclick="addTask()">+</button>
+    </div>
+    <div class="assignee-row">
+      <span class="assignee-label">Para:</span>
+      ${ASSIGNEES.map(a=>`<button class="assignee-btn${a===state.assignee?" active":""}"
+        onclick="S('assignee','${a}')">${a}</button>`).join("")}
+    </div>
+    <div class="due-date-row">
+      <span class="due-date-label">📅 Prazo:</span>
+      <input id="due-date-input" type="date" class="due-date-input" value="${state.dueDate}" onchange="onDueDateChange(this.value)">
+      <input id="due-time-input" type="time" class="due-date-input time-input" value="${state.dueTime}"
+        ${!state.dueDate?"disabled":""} onchange="state.dueTime=this.value">
+    </div>
+    <div id="cal-toggle-wrap">${state.dueDate?`<label class="cal-toggle">
+      <input type="checkbox" ${state.addToCalendar?"checked":""} onchange="state.addToCalendar=this.checked">
+      Adicionar à agenda
+    </label>`:""}</div>
+    <div class="address-row">
+      <span class="address-label">📍 Endereço:</span>
+      <input id="address-input" class="address-input" placeholder="Rua, número, cidade">
+    </div>
+    <div class="notes-row">
+      <textarea id="notes-input" class="notes-input" placeholder="💬 Observações (opcional)..."></textarea>
+    </div>
+    <div class="add-tag-row">
+      <span class="add-tag-lbl">🏷️</span>
+      ${["urgente","aguardando","orçamento","importante"].map(tag => {
+        const active = (state.newTags||[]).includes(tag);
+        return '<button class="add-tag-btn' + (active?" active":"") + '" onclick="toggleNewTag(\'' + tag + '\')">' + tag + '</button>';
+      }).join("")}
+    </div>
+  </div>`;
+}
+
+function buildTaskLists(pending, done, groupTasks) {
+  if (state.activeGroup==="viagens") return buildTravelList(pending, done);
+  if (state.activeGroup==="saude")   return buildHealthList(pending, done);
+  if (state.activeGroup==="compras") return buildShoppingList(pending, done);
+  let html = "";
+  if (pending.length) html += `<div class="section-label">A FAZER</div><div class="task-list">${pending.map(buildTaskCard).join("")}</div>`;
+  if (done.length)    html += `<div class="section-label">CONCLUÍDAS</div><div class="task-list">${done.map(buildTaskCard).join("")}</div>`;
+  if (!groupTasks.length) html += `<div class="empty"><div class="empty-icon">${GROUPS.find(g=>g.id===state.activeGroup)?.emoji}</div><div>Nenhuma tarefa ainda.</div></div>`;
+  return html;
+}
+
+function buildTravelList(pending, done) {
+  const today = new Date().toISOString().split("T")[0];
+  // Agrupar por viagem, guardando a data de início de cada grupo
+  const trips = {};
+  [...pending,...done].forEach(t => {
+    const trip = t.travelName||"Próxima viagem";
+    const cat  = t.travelCategory||"Outros";
+    if (!trips[trip]) trips[trip] = { date: t.travelDate||null, cats: {} };
+    // Se alguma tarefa da viagem tem data, usa a menor encontrada
+    if (t.travelDate && (!trips[trip].date || t.travelDate < trips[trip].date))
+      trips[trip].date = t.travelDate;
+    if (!trips[trip].cats[cat]) trips[trip].cats[cat] = [];
+    trips[trip].cats[cat].push(t);
+  });
+  if (!Object.keys(trips).length)
+    return '<div class="empty"><div class="empty-icon">✈️</div><div>Nenhuma tarefa de viagem.</div></div>';
+
+  // Ordenar viagens: com data em ordem crescente, sem data no final
+  const sorted = Object.entries(trips).sort(([,a],[,b]) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+  });
+
+  return sorted.map(([trip, info]) => {
+    const d = info.date;
+    let dateLabel = "", dateClass = "";
+    if (d) {
+      const fmt = new Date(d+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit"});
+      if (d < today) { dateLabel = fmt + " · passada"; dateClass = "travel-trip-past"; }
+      else if (d === today) { dateLabel = "Hoje · " + fmt; dateClass = "travel-trip-today"; }
+      else { dateLabel = fmt; dateClass = "travel-trip-future"; }
+    }
+    const isEditingDate = !!state.editingTripDate[trip];
+    const tripKey = trip;  // usar nome direto — safeAttrStr cuida do escape nos onclicks
+    // Header do grupo com data editável
+    const tripHeader = '<div class="travel-trip-title">'
+      + '✈️ ' + esc(trip) + ' '
+      + (isEditingDate
+          ? ''
+          : (dateLabel
+              ? '<span class="travel-trip-date ' + dateClass + '" onclick="startEditTripDate(' + safeAttrStr(tripKey) + ')" title="Clique para editar data" style="cursor:pointer">· ' + dateLabel + ' ✏️</span>'
+              : '<button class="travel-trip-date-edit-btn" onclick="startEditTripDate(' + safeAttrStr(tripKey) + ')">📅 + Data de início</button>'
+            )
+        )
+      + '</div>'
+        + (isEditingDate
+          ? '<div class="travel-trip-date-row">'
+            + '<label>📅 Início:</label>'
+            + '<input id="ttd-' + encodeURIComponent(tripKey) + '" type="date" class="travel-trip-date-input" value="' + (d||'') + '">'
+            + '<button class="travel-trip-date-save" onclick="saveTripDate(' + safeAttrStr(tripKey) + ',' + safeAttrStr(tripKey) + ')">✓ Salvar</button>'
+            + (d ? '<button class="travel-trip-date-clear" onclick="clearTripDate(' + safeAttrStr(tripKey) + ',' + safeAttrStr(tripKey) + ')">✕ Remover</button>' : '')
+            + '<button class="travel-trip-date-cancel" onclick="cancelTripDate(' + safeAttrStr(tripKey) + ')">Cancelar</button>'
+            + '</div>'
+          : ''
+        );
+
+    const allT = Object.values(info.cats).flat();
+    const doneT = allT.filter(t=>t.done).length;
+    const pctT = allT.length ? Math.round(doneT/allT.length*100) : 0;
+    const progressBar = allT.length ? `<div class="trip-progress-bar"><div class="trip-progress-fill" style="width:${pctT}%"></div></div><div class="trip-progress-lbl">${doneT}/${allT.length} tarefas · ${pctT}% concluído</div>` : "";
+
+    return '<div class="travel-group-section">'
+      + tripHeader
+      + progressBar
+      + Object.entries(info.cats).map(([cat, tasks]) =>
+          '<div style="margin-bottom:16px">'
+          + '<div class="travel-group-label">' + esc(cat)
+          + ' <span class="travel-trip-name">' + tasks.filter(t=>t.done).length + '/' + tasks.length + '</span>'
+          + '</div>'
+          + '<div class="task-list">' + tasks.map(buildTaskCard).join("") + '</div>'
+          + '</div>'
+        ).join("")
+      + '</div>';
+  }).join("");
+}
+
+function buildShoppingList(pending, done) {
+  const cats = {};
+  [...pending,...done].forEach(t => {
+    const cat = t.shoppingCategory||"Outros";
+    if (!cats[cat]) cats[cat]=[];
+    cats[cat].push(t);
+  });
+  const sorted = [...SHOPPING_CATS.filter(c=>cats[c]),...Object.keys(cats).filter(c=>!SHOPPING_CATS.includes(c))];
+  if (!sorted.length) return '<div class="empty"><div class="empty-icon">🛒</div><div>Nenhum item de compras.</div></div>';
+  return sorted.map(cat =>
+    '<div style="margin-bottom:20px">'
+    + '<div class="health-group-label" style="color:#85C1A3">'
+    + (SHOPPING_EMOJIS[cat]||"📦") + ' ' + esc(cat)
+    + ' <span class="health-count-tag" style="background:#E8F5EF;color:#3A9060">'
+    + cats[cat].filter(t=>t.done).length + '/' + cats[cat].length
+    + '</span></div>'
+    + '<div class="task-list">' + cats[cat].map(buildTaskCard).join("") + '</div>'
+    + '</div>'
+  ).join("");
+}
+
+function buildHealthList(pending, done) {
+  const cats = {};
+  [...pending,...done].forEach(t => {
+    const cat = t.healthCategory||"Outros";
+    if (!cats[cat]) cats[cat]=[];
+    cats[cat].push(t);
+  });
+  const sorted = [...HEALTH_CATS.filter(c=>cats[c]),...Object.keys(cats).filter(c=>!HEALTH_CATS.includes(c))];
+  if (!sorted.length) return `<div class="empty"><div class="empty-icon">🏥</div><div>Nenhuma tarefa de saúde.</div></div>`;
+  return sorted.map(cat=>`
+    <div style="margin-bottom:20px">
+      <div class="health-group-label">${HEALTH_EMOJIS[cat]||"🏥"} ${cat}
+        <span class="health-count-tag">${cats[cat].filter(t=>t.done).length}/${cats[cat].length}</span>
+      </div>
+      <div class="task-list">${cats[cat].map(buildTaskCard).join("")}</div>
+    </div>`).join("");
+}
+
+function buildTaskCard(task) {
+  const today = new Date().toISOString().split("T")[0];
+  const overdue = task.dueDate && !task.done && task.dueDate < today;
+  let dueFmt = task.dueDate
+    ? new Date(task.dueDate+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit"})
+      + (task.dueTime?` às ${task.dueTime}`:"")
+    : "";
+  const h = task.house ? HOUSES.find(h=>h.id===task.house) : null;
+  const mapsUrl = task.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(task.address)}` : null;
+  const isEditingNote = state.editingNotes[task.id];
+  const isEditingDate = state.editingDateTime[task.id];
+  const notesVal = state.notesVal[task.id]!==undefined ? state.notesVal[task.id] : (task.notes||"");
+
+  // Date/time editor block — built with string concat to avoid template literal quote conflicts
+  const tid = task.id;
+  const dateEditorHtml = isEditingDate
+    ? '<div class="date-edit-row">'
+      + '<input id="de-date-' + tid + '" type="date" class="date-edit-input" value="' + (task.dueDate||'') + '"'
+      + ' onchange="onTaskDateChange(' + tid + ',this.value)">'
+      + '<input id="de-time-' + tid + '" type="time" class="date-edit-input" value="' + (task.dueTime||'') + '"'
+      + (!task.dueDate ? ' disabled' : '') + ' onchange="state._dtEdit[' + tid + '].time=this.value">'
+      + '<button class="date-edit-save" onclick="saveDateEdit(' + tid + ')">✓ Salvar</button>'
+      + '<button class="date-edit-clear" onclick="clearDateEdit(' + tid + ')">🗑 Remover</button>'
+      + '<button class="date-edit-cancel" onclick="cancelDateEdit(' + tid + ')">Cancelar</button>'
+      + '</div>'
+    : "";
+
+  // Due tag — clickable when task is pending
+  const dueClass = "due-tag" + (task.done ? " done-tag" : overdue ? " overdue" : "") + (task.done ? "" : " due-tag-clickable");
+  const dueClick = task.done ? "" : ' onclick="startEditDate(' + tid + ')" title="Toque para editar data"';
+  const duePrefix = task.done ? "✓ " : overdue ? "⚠ " : "📅 ";
+  const dueDateHtml = dueFmt
+    ? '<span class="' + dueClass + '"' + dueClick + '>' + duePrefix + esc(dueFmt) + '</span>'
+    : "";
+
+  return `<div class="task-card${task.done?" done":""}">
+    <div class="task-row">
+      <button class="check-btn${task.done?" done":""}" onclick="toggleTask(${task.id})">${task.done?"✓":""}</button>
+      <div class="task-body">
+        ${state.editingText[task.id] ? (
+          '<input class="task-text-edit" id="te-' + task.id + '" value="' + esc(state.textVal[task.id]||task.text) + '" oninput="state.textVal[' + task.id + ']=this.value">'
+          + '<div class="task-text-actions">'
+          + '<button class="task-text-save" onclick="saveTaskText(' + task.id + ')">✓ Salvar</button>'
+          + '<button class="task-text-cancel" onclick="cancelTaskText(' + task.id + ')">Cancelar</button>'
+          + '</div>'
+        ) : (
+          '<div class="task-text' + (task.done?" done":"") + '" onclick="' + (task.done?"":"startEditText("+task.id+")") + '" title="' + (task.done?"":"Toque para editar") + '">' + esc(task.text) + '</div>'
+        )}
+        <div class="task-meta">
+          <span class="meta-tag meta-tag-clickable" onclick="startEditAssignee(${task.id})" title="Toque para editar">👤 ${task.assignee}</span>
+          ${h?`<span class="house-tag">${h.emoji} ${h.label}</span>`:""}
+          ${task.healthMedico?`<span class="meta-tag">👨‍⚕️ ${esc(task.healthMedico)}</span>`:""}
+          ${task.healthRetorno?`<span class="due-tag">🗓 Retorno: ${new Date(task.healthRetorno+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}</span>`:""}
+          ${dueDateHtml}
+          <span>${task.createdAt}</span>
+        </div>
+      </div>
+      <button class="delete-btn" onclick="deleteTask(${task.id})">✕</button>
+    </div>
+    ${dateEditorHtml}
+    ${state.editingAssignee[task.id] ? (() => {
+      const cur = state.editingAssignee[task.id];
+      return '<div class="assignee-edit-row">'
+        + '<span class="assignee-edit-label">Para:</span>'
+        + ASSIGNEES.map(a => '<button class="assignee-edit-btn' + (a===cur?' active':'') + '" onclick="pickAssignee(' + task.id + ',' + safeAttrStr(a) + ')">' + a + '</button>').join('')
+        + '<button class="assignee-edit-save" onclick="saveAssignee(' + task.id + ')">✓</button>'
+        + '<button class="date-edit-cancel" onclick="cancelAssigneeEdit(' + task.id + ')">✕</button>'
+        + '</div>';
+    })() : ""}
+    ${!task.dueDate && !isEditingDate && !task.done ? `<button class="add-due-btn" onclick="startEditDate(${task.id})">📅 Adicionar prazo</button>` : ""}
+    ${(() => {
+      const isEditAddr = !!state.editingAddress[task.id];
+      const addrVal = state.addressVal[task.id] !== undefined ? state.addressVal[task.id] : (task.address||"");
+      if (isEditAddr) return '<div class="address-edit-row">'
+        + '<input id="ae-' + task.id + '" class="address-edit-input" value="' + esc(addrVal) + '" placeholder="Endereço..." oninput="state.addressVal[' + task.id + ']=this.value">'
+        + '<button class="address-edit-save" onclick="saveAddress(' + task.id + ')">✓</button>'
+        + '<button class="address-edit-cancel" onclick="cancelAddress(' + task.id + ')">✕</button>'
+        + '</div>';
+      if (mapsUrl) return '<div class="task-address"><a href="' + mapsUrl + '" target="_blank" class="map-link map-link-clickable" title="Toque para ver no Maps">📍 ' + esc(task.address) + '</a>'
+        + '<button onclick="startEditAddress(' + task.id + ')" style="background:none;border:none;color:#C8A87E;cursor:pointer;font-size:11px;padding:0 4px">✏️</button></div>';
+      return '<button class="add-note-btn" onclick="startEditAddress(' + task.id + ')" style="color:#BBBBB0;font-size:11px;margin-top:2px">📍 Adicionar endereço</button>';
+    })()}
+    ${task.tags && task.tags.length ? `<div class="task-tags">${task.tags.map(tag => `<span class="task-tag task-tag-${tag}" onclick="removeTag(${task.id},'${tag}')" title="Clique para remover">🏷️ ${tag}</span>`).join("")}</div>` : ""}
+    <div style="margin-top:6px">
+      ${isEditingNote?`
+        <textarea class="notes-edit-input" oninput="setNoteVal(${task.id},this.value)"
+          placeholder="Escreva observações...">${esc(notesVal)}</textarea>
+        <div class="note-actions">
+          <button class="note-save" onclick="saveNote(${task.id})">Salvar</button>
+          <button class="note-cancel" onclick="cancelNote(${task.id})">Cancelar</button>
+        </div>`:
+      task.notes?`
+        <div class="task-notes" onclick="startEditNote(${task.id})">
+          <span class="task-notes-label">💬 Observações (toque para editar)</span>
+          ${esc(task.notes)}
+        </div>`:
+      `<button class="add-note-btn" onclick="startEditNote(${task.id})">+ Adicionar observação</button>`}
+    </div>
+  </div>`;
+}
+
+// ── BUSCA GLOBAL ────────────────────────────────────────────────────
+function buildGlobalSearch() {
+  const q = (state.globalSearch||"").toLowerCase().trim();
+  if (!q) return `<div class="empty"><div class="empty-icon">🔍</div><div>Digite para buscar em todos os grupos...</div></div>`;
+
+  const GNAMES = GROUP_NAMES;
+  const GEMOJIS = GROUP_EMOJIS;
+
+  // Tarefas
+  const tasks = state.tasks.filter(t =>
+    (t.text||"").toLowerCase().includes(q) ||
+    (t.notes||"").toLowerCase().includes(q) ||
+    (t.address||"").toLowerCase().includes(q)
+  );
+  // Contatos
+  const contacts = state.contacts.filter(c =>
+    (c.name||"").toLowerCase().includes(q) ||
+    (c.company||"").toLowerCase().includes(q) ||
+    (c.phone||"").toLowerCase().includes(q)
+  );
+  // Imóveis
+  const imoveis = state.imoveis.filter(im =>
+    (im.nome||"").toLowerCase().includes(q) ||
+    (im.cidade||"").toLowerCase().includes(q) ||
+    (im.empreendimento||"").toLowerCase().includes(q)
+  );
+  // Renovar
+  const renovar = state.renovar.filter(r =>
+    (r.nome||"").toLowerCase().includes(q) ||
+    (r.notas||"").toLowerCase().includes(q)
+  );
+
+  const total = tasks.length + contacts.length + imoveis.length + renovar.length;
+  if (!total) return `<div class="empty"><div class="empty-icon">🔍</div><div>Nenhum resultado para "<strong>${esc(q)}</strong>"</div></div>`;
+
+  let html = `<div style="font-size:12px;color:#888;margin-bottom:12px">${total} resultado(s) para "<strong>${esc(q)}</strong>"</div>`;
+
+  if (tasks.length) {
+    html += `<div class="search-result-group">📋 Tarefas (${tasks.length})</div>`;
+    html += tasks.slice(0,8).map(t =>
+      `<div class="dash-task-row" style="cursor:pointer" onclick="setGroup('${t.group}')">
+        <span class="dash-task-group">${GEMOJIS[t.group]||"📌"} ${GNAMES[t.group]||t.group}</span>
+        <span class="dash-task-text">${esc(t.text)}</span>
+        ${t.done?'<span style="font-size:10px;color:#7BBF7B">✓</span>':''}
+      </div>`
+    ).join("") + (tasks.length > 8 ? `<div style="font-size:11px;color:#AAA;padding:4px 0">+${tasks.length-8} tarefas...</div>` : "");
+  }
+
+  if (contacts.length) {
+    html += `<div class="search-result-group" style="margin-top:12px">👥 Contatos (${contacts.length})</div>`;
+    html += contacts.slice(0,4).map(c =>
+      `<div class="dash-task-row" style="cursor:pointer" onclick="setGroup('contatos')">
+        <span class="dash-task-text"><strong>${esc(c.name)}</strong>${c.company?` · ${esc(c.company)}`:""}</span>
+        ${c.phone?`<span class="dash-task-group">📱</span>`:""}
+      </div>`
+    ).join("");
+  }
+
+  if (imoveis.length) {
+    html += `<div class="search-result-group" style="margin-top:12px">🏘 Imóveis (${imoveis.length})</div>`;
+    html += imoveis.map(im =>
+      `<div class="dash-task-row" style="cursor:pointer" onclick="setGroup('imoveis')">
+        <span class="dash-task-text"><strong>${esc(im.nome)}</strong>${im.cidade?` · ${esc(im.cidade)}`:""}</span>
+        <span class="dash-task-group">${esc(im.tipo||"")}</span>
+      </div>`
+    ).join("");
+  }
+
+  if (renovar.length) {
+    html += `<div class="search-result-group" style="margin-top:12px">🔄 Renovar (${renovar.length})</div>`;
+    html += renovar.map(r =>
+      `<div class="dash-task-row" style="cursor:pointer" onclick="setGroup('renovar')">
+        <span class="dash-task-text"><strong>${esc(r.nome)}</strong></span>
+        <span class="dash-task-group">${RENOVAR_TIPO_EMOJIS[r.tipo]||"🔄"}</span>
+      </div>`
+    ).join("");
+  }
+
+  return html;
+}
+
+// ── RENOVAR ────────────────────────────────────────────────────────
+function renovarStatus(item) {
+  if (!item.vencimento) return "neutro";
+  const today = new Date().toISOString().split("T")[0];
+  if (item.vencimento < today) return "vencido";
+  const diff = (new Date(item.vencimento) - new Date()) / 86400000;
+  if (diff <= 30) return "warn";
+  return "ok";
+}
+
+function buildRenovarForm(item, prefix) {
+  const v = f => esc(item[f]||"");
+  const field = (lbl, id, ph, type) =>
+    `<div class="renovar-field"><span class="renovar-field-lbl">${lbl}</span><input id="${prefix}-${id}" class="renovar-field-input" type="${type||'text'}" placeholder="${ph}" value="${v(id)}"></div>`;
+  const sel = (lbl, id, opts) =>
+    `<div class="renovar-field"><span class="renovar-field-lbl">${lbl}</span><select id="${prefix}-${id}" class="renovar-field-select">${opts.map(o=>`<option value="${o}"${o===(item[id]||opts[0])?" selected":""}>${o}</option>`).join("")}</select></div>`;
+  return `<div>${field("📝 Nome","nome","Ex: Seguro DPVAT carro")}
+    ${field("👤 Responsável","responsavel","Daniel, Natalia...")}
+    ${sel("📐 Tipo","tipo",RENOVAR_TIPOS)}
+    ${sel("🔁 Recorrência","recorrencia",RENOVAR_RECORRENCIA)}
+    ${sel("🔖 Status","status",RENOVAR_STATUS)}
+    ${field("📅 Vencimento","vencimento","","date")}
+    ${field("💬 Notas","notas","Detalhes, valor, contato...")}
+  </div>`;
+}
+
+function readRenovarForm(prefix) {
+  const g = id => { const el=document.getElementById(prefix+"-"+id); return el?el.value.trim():""; };
+  return { nome:g("nome"), responsavel:g("responsavel"), tipo:g("tipo"), recorrencia:g("recorrencia"), status:g("status"), vencimento:g("vencimento"), notas:g("notas") };
+}
+
+function buildRenovar() {
+  const today = new Date().toISOString().split("T")[0];
+  const ok    = state.renovar.filter(r => renovarStatus(r) === "ok").length;
+  const warn  = state.renovar.filter(r => renovarStatus(r) === "warn").length;
+  const venc  = state.renovar.filter(r => renovarStatus(r) === "vencido").length;
+
+  const headerHtml = `<div class="renovar-header">
+    <div class="renovar-header-title">🔄 Controle de Renovações</div>
+    <div class="renovar-stats-mini">
+      <span class="renovar-stat-mini renovar-stat-ok">✓ Em dia: ${ok}</span>
+      <span class="renovar-stat-mini renovar-stat-warn">⚠ Vencendo: ${warn}</span>
+      <span class="renovar-stat-mini renovar-stat-vencido">✕ Vencido: ${venc}</span>
+    </div>
+  </div>`;
+
+  const formHtml = state.showRenovarForm ? `<div class="renovar-form">
+    <div style="font-size:14px;font-weight:700;color:#1C1C1E;margin-bottom:12px">🔄 Novo Item</div>
+    ${buildRenovarForm({}, "rn")}
+    <div class="renovar-edit-actions">
+      <button class="renovar-save-btn" onclick="saveNewRenovar()">Salvar</button>
+      <button class="renovar-cancel-btn" onclick="toggleRenovarForm()">Cancelar</button>
+    </div>
+  </div>` : "";
+
+  const listHtml = !state.renovar.length && !state.showRenovarForm
+    ? `<div class="empty"><div class="empty-icon">🔄</div><div>Nenhum item cadastrado ainda.</div></div>`
+    : state.renovar.map(r => {
+        const st = renovarStatus(r);
+        const isEditing = state.editingRenovarId === r.id;
+        const badgeCls = st==="ok"?"renovar-badge-ok":st==="warn"?"renovar-badge-warn":st==="vencido"?"renovar-badge-vencido":"renovar-badge-neutro";
+        const stLabel = {"ok":"Em dia","warn":"Vencendo","vencido":"Vencido","neutro":"Sem data"}[st];
+        let countdown = "";
+        if (r.vencimento) {
+          const diff = Math.ceil((new Date(r.vencimento) - new Date()) / 86400000);
+          const fmt = new Date(r.vencimento+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit"});
+          countdown = diff < 0 ? `Venceu há ${Math.abs(diff)}d (${fmt})` : `Vence em ${diff}d (${fmt})`;
+        }
+        return `<div class="renovar-card ${st}">
+          <div class="renovar-card-header">
+            <div>
+              <div class="renovar-card-nome">${RENOVAR_TIPO_EMOJIS[r.tipo]||"🔄"} ${esc(r.nome)}</div>
+              <div class="renovar-card-tipo">${esc(r.tipo||"")} ${r.recorrencia?`· ${r.recorrencia}`:""} ${r.responsavel?`· 👤 ${r.responsavel}`:""}</div>
+            </div>
+            <button class="renovar-edit-btn" onclick="startEditRenovar(${r.id})">✏️</button>
+          </div>
+          <div class="renovar-card-meta">
+            <span class="renovar-badge ${badgeCls}">${stLabel}</span>
+            ${countdown?`<span class="renovar-countdown" style="color:${st==="vencido"?"#C04040":st==="warn"?"#C09030":"#888"}">${countdown}</span>`:""}
+          </div>
+          ${r.notas?`<div style="font-size:11px;color:#888;margin-top:6px;background:#F9F7F4;border-radius:6px;padding:5px 8px">${esc(r.notas)}</div>`:""}
+          ${isEditing?`<div class="renovar-edit-inline">
+            ${buildRenovarForm(r,"re-"+r.id)}
+            <div class="renovar-edit-actions">
+              <button class="renovar-save-btn" onclick="saveRenovarEdit(${r.id})">✓ Salvar</button>
+              <button class="renovar-cancel-btn" onclick="cancelEditRenovarById(${r.id})">Cancelar</button>
+              <button class="renovar-del-btn" onclick="deleteRenovar(${r.id})">🗑</button>
+            </div>
+          </div>`:""}
+        </div>`;
+      }).join("");
+
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1C1C1E">🔄 ${state.renovar.length} Renovações</div>
+    <button class="renovar-new-btn" onclick="toggleRenovarForm()">${state.showRenovarForm?"✕ Fechar":"+ Novo"}</button>
+  </div>
+  ${headerHtml}${formHtml}${listHtml}`;
+}
+
+
+window.toggleRenovarForm = function() {
+  state.showRenovarForm = !state.showRenovarForm;
+  state.editingRenovarId = null;
+  render();
+};
+
+window.cancelEditRenovarById = function(id) {
+  state.editingRenovarId = null;
+  render();
+};
+window.saveNewRenovar = async function() {
+  const data = readRenovarForm("rn");
+  if (!data.nome) { alert("Nome é obrigatório"); return; }
+  const item = { ...data, id: Date.now() * 1000 + Math.floor(Math.random() * 1000) };
+  state.renovar.push(item);  // atualização local imediata
+  state.renovar.sort((a,b) => (a.vencimento||"9").localeCompare(b.vencimento||"9"));
+  state.showRenovarForm = false;
+  render();
+  await fbSaveRenovar(item);
+};
+window.startEditRenovar = function(id) {
+  state.editingRenovarId = state.editingRenovarId === id ? null : id;
+  render();
+};
+window.saveRenovarEdit = async function(id) {
+  const data = readRenovarForm("re-"+id);
+  const item = state.renovar.find(r => r.id === id);
+  if (!item) return;
+  Object.assign(item, data);
+  state.editingRenovarId = null;
+  render();
+  await fbSaveRenovar(item);
+};
+window.deleteRenovar = async function(id) {
+  if (!confirm("Remover este item?")) return;
+  state.editingRenovarId = null;
+  render();
+  await fbDeleteRenovar(id);
+};
+
+// ── MERCADO ────────────────────────────────────────────────────────
+function buildMercado() {
+  const casa = state.mercadoCasa;
+  const search = (state.mercadoSearch||"").toLowerCase();
+  const allItems = state.tasks.filter(t => t.group === "mercado" && t.mercadoCasa === casa);
+  const filtered = search ? allItems.filter(t => (t.text||"").toLowerCase().includes(search)) : allItems;
+  const pending = filtered.filter(t => !t.done);
+  const done    = filtered.filter(t =>  t.done);
+
+  // Agrupar por categoria automática
+  const cats = {};
+  pending.forEach(t => {
+    const cat = t.mercadoCat || inferMercadoCat(t.text);
+    if (!cats[cat]) cats[cat] = [];
+    cats[cat].push(t);
+  });
+  const sortedCats = [...MERCADO_CATS.filter(c => cats[c]), ...Object.keys(cats).filter(c => !MERCADO_CATS.includes(c))];
+
+  const statsHtml = `<div class="mercado-stats">
+    <div class="mercado-stat"><div class="mercado-stat-num">${pending.length}</div><div class="mercado-stat-lbl">A Comprar</div></div>
+    <div class="mercado-stat"><div class="mercado-stat-num">${done.length}</div><div class="mercado-stat-lbl">✓ Comprado</div></div>
+    <div class="mercado-stat"><div class="mercado-stat-num">${allItems.length}</div><div class="mercado-stat-lbl">Total Lista</div></div>
+  </div>`;
+
+  const formHtml = `<div class="mercado-add-form">
+    <div class="mercado-add-row">
+      <input id="mercado-input" class="mercado-add-input" placeholder="Adicionar produto..." onkeydown="if(event.key==='Enter')addMercadoItem()">
+      <input id="mercado-qty" class="mercado-qty-input" type="text" placeholder="Qtd" value="1">
+      <button class="mercado-add-btn" onclick="addMercadoItem()">+</button>
+    </div>
+  </div>`;
+
+  const listHtml = !pending.length && !done.length
+    ? `<div class="empty"><div class="empty-icon">🧺</div><div>Lista vazia para ${casa}.</div></div>`
+    : sortedCats.map(cat => {
+        const items = cats[cat];
+        if (!items || !items.length) return "";
+        return `<div class="mercado-cat-section">
+          <div class="mercado-cat-header">
+            <span style="font-size:16px">${MERCADO_CAT_EMOJIS[cat]||"📦"}</span>
+            <span class="mercado-cat-title">${cat}</span>
+            <span class="mercado-cat-count">${items.length}</span>
+          </div>
+          ${items.map(t => `<div class="mercado-item${t.done?" done":""}">
+            <button class="mercado-item-check${t.done?" done":""}" onclick="toggleTask(${t.id})">${t.done?"✓":""}</button>
+            <span class="mercado-item-nome${t.done?" done":""}">${esc(t.text)}</span>
+            ${t.qty&&t.qty!=="1"?`<span class="mercado-item-qty">${esc(t.qty)}</span>`:""}
+            <button class="mercado-del-btn" onclick="deleteTask(${t.id})">✕</button>
+          </div>`).join("")}
+        </div>`;
+      }).join("")
+    + (done.length ? `<div class="section-label" style="margin-top:16px">✓ COMPRADO (${done.length})</div>
+        ${done.map(t => `<div class="mercado-item done">
+          <button class="mercado-item-check done" onclick="toggleTask(${t.id})">✓</button>
+          <span class="mercado-item-nome done">${esc(t.text)}</span>
+          ${t.qty&&t.qty!=="1"?`<span class="mercado-item-qty">${esc(t.qty)}</span>`:""}
+          <button class="mercado-del-btn" onclick="deleteTask(${t.id})">✕</button>
+        </div>`).join("")}` : "");
+
+  return `<div class="mercado-header">
+    <div class="mercado-casa-selector">
+      ${MERCADO_CASAS.map(c => `<button class="mercado-casa-btn${c===state.mercadoCasa?" active":""}" onclick="S('mercadoCasa','${c}')">${MERCADO_CASA_EMOJIS[c]} ${c}</button>`).join("")}
+    </div>
+    <input id="mercado-search" class="mercado-search" placeholder="🔍 Filtrar lista..." oninput="S('mercadoSearch',this.value)" value="${esc(state.mercadoSearch||'')}">
+  </div>
+  ${statsHtml}
+  ${formHtml}
+  ${listHtml}`;
+}
+
+window.addMercadoItem = async function() {
+  const inp = document.getElementById('mercado-input');
+  const qtyEl = document.getElementById('mercado-qty');
+  const text = inp ? inp.value.trim() : "";
+  if (!text) return;
+  const qty = qtyEl ? qtyEl.value.trim() || "1" : "1";
+  const cat = inferMercadoCat(text);
+  const task = {
+    id: Date.now() * 1000 + Math.floor(Math.random() * 1000),
+    text, group: "mercado", assignee: state.assignee,
+    done: false, dueDate: null, dueTime: null, address: null, notes: null,
+    house: null, createdAt: new Date().toLocaleDateString("pt-BR"),
+    mercadoCasa: state.mercadoCasa, mercadoCat: cat, qty,
+  };
+  render();
+  if (inp) { inp.value = ""; inp.focus(); }
+  if (qtyEl) qtyEl.value = "1";
+  await fbSaveTask(task);
+};
+
+// ── DASHBOARD ──────────────────────────────────────────────────────
+function buildDashboard() {
+  const today = new Date().toISOString().split("T")[0];
+  const me = state.dashFilter;
+
+  // Stats por grupo
+  const TASK_GROUPS_DASH = ["casa","compras","dejulie","viladejulie","saude","viagens","mercado","outros"];
+  const groupNames  = GROUP_NAMES;
+  const groupEmojis = GROUP_EMOJIS;
+
+  const totalPend = state.tasks.filter(t => !t.done && (me==="Todos" || t.assignee===me || t.assignee==="Casal" || t.assignee==="Família")).length;
+  const totalDone = state.tasks.filter(t => t.done && (me==="Todos" || t.assignee===me || t.assignee==="Casal" || t.assignee==="Família")).length;
+  const in7days = new Date(); in7days.setDate(in7days.getDate()+7);
+  const in7str  = in7days.toISOString().split("T")[0];
+  const vencendo  = state.tasks.filter(t => !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= in7str).length;
+  const vencidas  = state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < today).length;
+  const renovarWarn = state.renovar.filter(r => {
+    if (!r.vencimento) return false;
+    const diff = (new Date(r.vencimento) - new Date()) / 86400000;
+    return diff >= 0 && diff <= 30;
+  }).length;
+  const renovarVenc = state.renovar.filter(r => r.vencimento && r.vencimento < today).length;
+
+  // Próximas viagens
+  const trips = {};
+  state.tasks.filter(t => t.group === "viagens").forEach(t => {
+    const name = t.travelName || "Próxima viagem";
+    if (!trips[name]) trips[name] = { date: t.travelDate||null, total:0, done:0 };
+    if (t.travelDate && (!trips[name].date || t.travelDate < trips[name].date)) trips[name].date = t.travelDate;
+    trips[name].total++; if (t.done) trips[name].done++;
+  });
+  const nextTrips = Object.entries(trips)
+    .filter(([,v]) => v.date && v.date >= today)
+    .sort(([,a],[,b]) => a.date < b.date ? -1 : 1)
+    .slice(0, 4);
+
+  // Próximos FDS
+  const weeks = Object.entries(state.fds || {}).filter(([k]) => k >= today).sort().slice(0,3);
+  const allWeekData = generateWeekends().filter(w => w.key >= today).slice(0,3);
+
+  // Tarefas com prazo próximo (todas as seções incluindo Outros e Mercado)
+  const upcoming = state.tasks.filter(t => !t.done && t.dueDate && t.dueDate >= today)
+    .filter(t => me==="Todos" || t.assignee===me || t.assignee==="Casal" || t.assignee==="Família")
+    .sort((a,b) => a.dueDate < b.dueDate ? -1 : 1).slice(0,8);
+
+  // Tarefas SEM prazo agrupadas por seção (ex: "Despedida Felipe" em Outros)
+  const semPrazo = state.tasks.filter(t => !t.done && !t.dueDate)
+    .filter(t => me==="Todos" || t.assignee===me || t.assignee==="Casal" || t.assignee==="Família");
+
+  // Tarefas sem prazo por seção (para mostrar no breakdown)
+  const byGroup = {};
+  TASK_GROUPS_DASH.forEach(g => { byGroup[g] = state.tasks.filter(t => t.group===g && !t.done).length; });
+
+  // TODOS os itens do Renovar (não apenas os com vencimento próximo)
+  const todosRenovar = [...state.renovar].sort((a,b) => {
+    // Sem data vai para o final, com data ordena por vencimento
+    if (!a.vencimento && !b.vencimento) return (a.nome||"").localeCompare(b.nome||"");
+    if (!a.vencimento) return 1;
+    if (!b.vencimento) return -1;
+    return a.vencimento < b.vencimento ? -1 : 1;
+  });
+
+  // Renovar vencendo em breve (para o card de alerta)
+  const renovarUpcoming = state.renovar.filter(r => r.vencimento && r.vencimento >= today)
+    .sort((a,b) => a.vencimento < b.vencimento ? -1 : 1).slice(0,3);
+
+  // Breakdown por seção — apenas grupos com pendentes
+  const groupBreakdown = TASK_GROUPS_DASH
+    .filter(g => byGroup[g] > 0)
+    .map(g => `<div class="dash-stat" style="cursor:pointer" onclick="setGroup('${g}')">
+      <div class="dash-stat-num" style="font-size:18px">${byGroup[g]}</div>
+      <div class="dash-stat-lbl">${GROUP_EMOJIS[g]} ${GROUP_NAMES[g]}</div>
+    </div>`).join("");
+
+  const statsHtml = `<div class="dash-stats-grid">
+    <div class="dash-stat"><div class="dash-stat-num">${totalPend}</div><div class="dash-stat-lbl">📋 Total Pendentes</div></div>
+    <div class="dash-stat"><div class="dash-stat-num" style="color:#7BBF7B">${totalDone}</div><div class="dash-stat-lbl">✓ Concluídas</div></div>
+    <div class="dash-stat"><div class="dash-stat-num" style="color:#C07070">${vencidas}</div><div class="dash-stat-lbl">⚠ Vencidas</div></div>
+    <div class="dash-stat"><div class="dash-stat-num" style="color:#F7D070">${vencendo}</div><div class="dash-stat-lbl">⏰ Venc. 7 dias</div></div>
+    <div class="dash-stat"><div class="dash-stat-num" style="color:#D4956A">${renovarWarn}</div><div class="dash-stat-lbl">🔄 Renovar 30d</div></div>
+    <div class="dash-stat"><div class="dash-stat-num">${state.imoveis.length}</div><div class="dash-stat-lbl">🏘 Imóveis</div></div>
+  </div>
+  ${groupBreakdown ? `<div class="dash-section-title" style="margin-top:4px;margin-bottom:8px;font-size:12px">Pendentes por seção</div><div class="dash-stats-grid" style="margin-bottom:0">${groupBreakdown}</div>` : ""}`;
+
+  const tripsHtml = nextTrips.length ? nextTrips.map(([name, info]) => {
+    const days = Math.ceil((new Date(info.date) - new Date()) / 86400000);
+    const fmt = new Date(info.date+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"short"});
+    const pct = info.total ? Math.round(info.done/info.total*100) : 0;
+    return `<div class="dash-trip-card">
+      <div class="dash-trip-days">${days}d</div>
+      <div class="dash-trip-info">
+        <div class="dash-trip-name">✈️ ${esc(name)}</div>
+        <div class="dash-trip-date">${fmt} · ${info.done}/${info.total} tarefas</div>
+        <div class="trip-progress-bar" style="margin-top:4px"><div class="trip-progress-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join("") : '<div class="empty" style="padding:12px">Nenhuma viagem com data próxima</div>';
+
+  const fdsHtml = allWeekData.map(w => {
+    const saved = state.fds[w.key] || {};
+    const isa   = saved.isa_who !== undefined ? saved.isa_who : w.isaDefault;
+    const joa   = saved.joa_who !== undefined ? saved.joa_who : w.joaDefault;
+    const evento = saved.event  !== undefined ? saved.event  : w.event;
+    const isaIsMe = isa === me || me === "Todos";
+    const joaIsMe = joa === me || me === "Todos";
+    return `<div class="dash-fds-card" style="flex-direction:column;align-items:stretch;gap:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="dash-fds-dates">${w.fri} – ${w.sun}</div>
+        <div class="dash-fds-who">
+          <span class="dash-fds-person${isaIsMe?" highlight":""}">👧 ${esc(isa)}</span>
+          <span class="dash-fds-person${joaIsMe?" highlight":""}">👦 ${esc(joa)}</span>
+        </div>
+      </div>
+      ${evento ? `<div style="font-size:11px;color:#E65C00;background:#FFF5EC;border-radius:6px;padding:3px 8px;font-weight:600">⭐ ${esc(evento)}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  const upcomingHtml = upcoming.map(t => {
+    const days = Math.ceil((new Date(t.dueDate) - new Date()) / 86400000);
+    const grpEmoji = GROUP_EMOJIS[t.group] || "📌";
+    const grpName  = GROUP_NAMES[t.group] || t.group;
+    const daysColor = days === 0 ? "#C04040" : days <= 3 ? "#C07040" : "#888";
+    const daysLabel = days === 0 ? "hoje" : days === 1 ? "amanhã" : `${days}d`;
+    return `<div class="dash-task-row" style="cursor:pointer" onclick="setGroup('${t.group}')">
+      <span style="font-size:11px;font-weight:700;color:${daysColor};min-width:46px;white-space:nowrap">${daysLabel}</span>
+      <span class="dash-task-text">${esc(t.text)}</span>
+      <span class="dash-task-group" style="display:flex;gap:3px;align-items:center;flex-shrink:0">
+        <span>${grpEmoji} ${esc(grpName)}</span>
+        <span style="background:#E8E0D8;color:#666;border-radius:5px;padding:1px 5px;font-size:10px">👤 ${esc(t.assignee||"")}</span>
+      </span>
+    </div>`;
+  }).join("") || '<div style="font-size:12px;color:#CCC;padding:8px 0">Nenhuma tarefa com prazo próximo</div>';
+
+  const renovarHtml = todosRenovar.length ? todosRenovar.map(r => {
+    const st = renovarStatus(r);
+    const badgeCls = st==="ok"?"renovar-badge-ok":st==="warn"?"renovar-badge-warn":st==="vencido"?"renovar-badge-vencido":"renovar-badge-neutro";
+    let countdownLabel = "";
+    if (r.vencimento) {
+      const diff = Math.ceil((new Date(r.vencimento) - new Date()) / 86400000);
+      countdownLabel = diff < 0 ? `${Math.abs(diff)}d atrás` : diff === 0 ? "hoje" : `${diff}d`;
+    }
+    return `<div class="dash-task-row" style="cursor:pointer" onclick="setGroup('renovar')">
+      <span class="renovar-badge ${badgeCls}" style="min-width:44px;text-align:center;font-size:10px">${countdownLabel || "—"}</span>
+      <span class="dash-task-text">${esc(r.nome)}</span>
+      <span class="dash-task-group" style="display:flex;gap:3px;align-items:center;flex-shrink:0">
+        <span>${RENOVAR_TIPO_EMOJIS[r.tipo]||"🔄"} ${esc(r.tipo||"")}</span>
+        ${r.responsavel?`<span style="background:#E8E0D8;color:#666;border-radius:5px;padding:1px 5px;font-size:10px">👤 ${esc(r.responsavel)}</span>`:""}
+      </span>
+    </div>`;
+  }).join("") : '<div style="font-size:12px;color:#CCC;padding:8px 0">Nenhum item cadastrado em Renovar</div>';
+
+  // Tarefas sem prazo agrupadas por seção (ex: "Despedida Felipe" em Outros)
+  const semPrazoGrupos = {};
+  semPrazo.forEach(t => {
+    if (!semPrazoGrupos[t.group]) semPrazoGrupos[t.group] = [];
+    semPrazoGrupos[t.group].push(t);
+  });
+  const semPrazoHtml = TASK_GROUPS_DASH.filter(g => semPrazoGrupos[g]?.length).map(g => {
+    const tasks = semPrazoGrupos[g];
+    return `<div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:#AAA;letter-spacing:0.5px;margin-bottom:4px">${GROUP_EMOJIS[g]} ${GROUP_NAMES[g].toUpperCase()} (${tasks.length})</div>
+      ${tasks.slice(0,5).map(t => `<div class="dash-task-row" style="cursor:pointer" onclick="setGroup('${t.group}')">
+        <span style="font-size:11px;color:#CCC;min-width:46px">sem prazo</span>
+        <span class="dash-task-text">${esc(t.text)}</span>
+        <span style="background:#E8E0D8;color:#666;border-radius:5px;padding:1px 5px;font-size:10px;flex-shrink:0">👤 ${esc(t.assignee||"")}</span>
+      </div>`).join("")}
+      ${tasks.length > 5 ? `<div style="font-size:11px;color:#CCC;padding:2px 0">+${tasks.length-5} mais...</div>` : ""}
+    </div>`;
+  }).join("") || '<div style="font-size:12px;color:#CCC;padding:8px 0">Nenhuma tarefa sem prazo pendente</div>';
+
+  return `
+    <div class="dash-filter-bar">
+      ${["Todos","Daniel","Natalia"].map(f =>
+        `<button class="dash-filter-btn${state.dashFilter===f?" active":""}" onclick="S('dashFilter','${f}')">${f}</button>`
+      ).join("")}
+    </div>
+    ${statsHtml}
+    <div class="dash-section">
+      <div class="dash-section-title">✈️ Próximas Viagens</div>
+      ${tripsHtml}
+    </div>
+    <div class="dash-section">
+      <div class="dash-section-title">📅 Próximos Fins de Semana</div>
+      ${fdsHtml}
+    </div>
+    <div class="dash-section">
+      <div class="dash-section-title">⏰ Tarefas com Prazo</div>
+      ${upcomingHtml}
+    </div>
+    <div class="dash-section">
+      <div class="dash-section-title">📋 Tarefas Pendentes (sem prazo)</div>
+      ${semPrazoHtml}
+    </div>
+    <div class="dash-section">
+      <div class="dash-section-title">🔄 Renovar (${todosRenovar.length} itens)</div>
+      ${renovarHtml}
+    </div>`;
+}
+
+// ── IMÓVEIS ────────────────────────────────────────────────────────
+function imovelStatusClass(s) {
+  if (!s) return "";
+  if (s === "Locado") return "locado";
+  if (s === "Em construção") return "construcao";
+  if (s === "À venda") return "venda";
+  if (s === "Vendido") return "vendido";
+  return "";
+}
+
+function fmtMoeda(v) {
+  if (!v) return "";
+  // Trata tanto "1.200.000,50" (pt-BR) quanto "1200000.50" (en)
+  let s = String(v).replace(/[R$\s]/g,"").trim();
+  // Se tem vírgula e ponto: "1.200,50" → remover ponto, trocar vírgula por ponto
+  if (s.includes(",") && s.includes(".")) s = s.replace(/\./g,"").replace(",",".");
+  // Se só tem vírgula: "1200,50" → trocar por ponto
+  else if (s.includes(",")) s = s.replace(",",".");
+  const n = parseFloat(s);
+  if (isNaN(n)) return v;
+  return "R$ " + n.toLocaleString("pt-BR", {minimumFractionDigits:0, maximumFractionDigits:2});
+}
+
+function fmtData(d) {
+  if (!d) return "";
+  return new Date(d+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric"});
+}
+
+function buildImovelFormFields(im, prefix) {
+  // im = objeto para pré-preencher, prefix = "ni" (new) ou "ei-ID" (edit)
+  const p = prefix;
+  const field = (label, id, ph, val, type) =>
+    '<div class="imovel-field">' +
+    '<span class="imovel-field-label">' + label + '</span>' +
+    '<input id="' + p + '-' + id + '" class="imovel-field-input" type="' + (type||"text") + '" placeholder="' + ph + '" value="' + esc(val||"") + '">' +
+    '</div>';
+  const sel = (label, id, opts, val) =>
+    '<div class="imovel-field">' +
+    '<span class="imovel-field-label">' + label + '</span>' +
+    '<select id="' + p + '-' + id + '" class="imovel-field-select">' +
+    opts.map(o => '<option value="' + o + '"'+ (o===(val||opts[0])?' selected':'') +'>' + o + '</option>').join("") +
+    '</select></div>';
+  return field("🏠 Imóvel",   "nome",          "Nome do imóvel",          im.nome,        "text")
+    + field("🔢 Unidade",     "unidade",        "Nº / Torre / Bloco",      im.unidade,     "text")
+    + field("📍 Localização", "localizacao",   "Endereço / localização",  im.localizacao, "text")
+    + field("🏙 Cidade",      "cidade",        "Cidade",                  im.cidade,      "text")
+    + field("🏗 Empreend.",   "empreendimento","Nome do empreendimento",  im.empreendimento,"text")
+    + field("📋 Matrícula",   "matricula",     "Nº de matrícula",         im.matricula,   "text")
+    + sel(  "📐 Tipo",        "tipo",          IMOVEL_TIPOS,              im.tipo)
+    + sel(  "🔖 Status",      "status",        IMOVEL_STATUS,             im.status)
+    + sel(  "✅ Quitado",     "quitado",       ["Sim","Não"],             im.quitado||"Não")
+    + field("💰 Vlr. Pago",   "valorPago",     "R$ 0,00",                 im.valorPago,   "text")
+    + field("💵 Vlr. Venda",  "valorVenda",    "R$ 0,00",                 im.valorVenda,  "text")
+    + field("📅 Dt. Compra",  "dataCompra",    "",                        im.dataCompra,  "date")
+    + field("📅 Dt. Venda",   "dataVenda",     "",                        im.dataVenda,   "date")
+    + field("📐 Área (m²)",   "area",          "Ex: 120",                 im.area,        "text")
+    + field("👤 Locatário",   "locatario",     "Nome do inquilino",       im.locatario,   "text")
+    + field("💵 Aluguel/mês", "aluguelMensal", "R$ 0,00",                 im.aluguelMensal,"text")
+    + field("📅 Venc. Alug.", "vencAluguel",   "Dia do vencimento",       im.vencAluguel, "text")
+    + field("📅 Fim Contrato","fimContrato",   "",                        im.fimContrato, "date");
+}
+
+function readImovelFormFields(prefix) {
+  const g = id => { const el = document.getElementById(prefix+"-"+id); return el ? el.value.trim() : ""; };
+  return {
+    nome: g("nome"), unidade: g("unidade"), localizacao: g("localizacao"), cidade: g("cidade"),
+    empreendimento: g("empreendimento"), matricula: g("matricula"),
+    tipo: g("tipo"), status: g("status"), quitado: g("quitado"),
+    valorPago: g("valorPago"), valorVenda: g("valorVenda"),
+    dataCompra: g("dataCompra"), dataVenda: g("dataVenda"),
+    area: g("area"), locatario: g("locatario"), aluguelMensal: g("aluguelMensal"),
+    vencAluguel: g("vencAluguel"), fimContrato: g("fimContrato"),
+  };
+}
+
+function buildImovelCard(im) {
+  const isEditing = state.editingImovelId === im.id;
+  const stCls = "imovel-badge imovel-badge-status " + imovelStatusClass(im.status||"");
+  const qtCls = (im.quitado==="Sim") ? "imovel-badge imovel-badge-quitado" : "imovel-badge imovel-badge-nquitado";
+
+  const viewHtml =
+    '<div class="imovel-card-header">' +
+    '<div>' +
+    '<div class="imovel-card-nome">' + esc(im.nome||"Sem nome") + (im.unidade ? ' <span style="font-size:12px;color:#888;font-weight:500">· ' + esc(im.unidade) + '</span>' : '') + '</div>' +
+    (im.localizacao ? '<div class="imovel-card-loc">📍 ' + esc(im.localizacao) + (im.cidade ? ' · ' + esc(im.cidade) : '') + '</div>' : '') +
+    (im.empreendimento ? '<div class="imovel-card-loc">🏗 ' + esc(im.empreendimento) + '</div>' : '') +
+    '<div class="imovel-card-badges">' +
+    '<span class="imovel-badge imovel-badge-tipo">' + esc(im.tipo||"") + '</span>' +
+    (im.status ? '<span class="' + stCls + '">' + esc(im.status) + '</span>' : '') +
+    '<span class="' + qtCls + '">' + (im.quitado==="Sim"?"✓ Quitado":"✗ Não quitado") + '</span>' +
+    (im.matricula ? '<span class="imovel-badge" style="background:#F5F0E8;color:#888">Mat. ' + esc(im.matricula) + '</span>' : '') +
+    '</div>' + '</div>' +
+    '<button class="imovel-edit-btn" onclick="startEditImovel(' + im.id + ')">✏️</button>' +
+    '</div>' +
+    '<div class="imovel-card-valores">' +
+    (im.valorPago  ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Valor Pago</span>' + esc(fmtMoeda(im.valorPago)) + '</div>' : '') +
+    (im.valorVenda ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Valor Venda</span>' + esc(fmtMoeda(im.valorVenda)) + '</div>' : '') +
+    (im.dataCompra ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Compra</span>' + fmtData(im.dataCompra) + '</div>' : '') +
+    (im.dataVenda  ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Venda</span>' + fmtData(im.dataVenda) + '</div>' : '') +
+    (im.area       ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Área</span>' + esc(im.area) + ' m²</div>' : '') +
+    (im.locatario  ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Locatário</span>' + esc(im.locatario) + '</div>' : '') +
+    (im.aluguelMensal ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Aluguel/mês</span>' + esc(fmtMoeda(im.aluguelMensal)) + '</div>' : '') +
+    (im.fimContrato ? '<div class="imovel-valor-item"><span class="imovel-valor-label">Fim Contrato</span>' + fmtData(im.fimContrato) + '</div>' : '') +
+    '</div>';
+
+  const editHtml = isEditing
+    ? '<div class="imovel-inline-form">' +
+      buildImovelFormFields(im, "ei-"+im.id) +
+      '<div class="imovel-inline-actions">' +
+      '<button class="imovel-inline-save" onclick="saveImovelEdit(' + im.id + ')">✓ Salvar</button>' +
+      '<button class="imovel-inline-cancel" onclick="cancelImovelEdit()">Cancelar</button>' +
+      '<button class="imovel-inline-delete" onclick="deleteImovel(' + im.id + ')">🗑 Excluir</button>' +
+      '</div></div>'
+    : "";
+
+  const contratosHtml = buildContratosBlock(im);
+  return '<div class="imovel-card">' + viewHtml + contratosHtml + editHtml + '</div>';
+}
+
+function buildResumoPainel() {
+  const total = state.imoveis.length;
+  if (total === 0) return "";
+
+  // Soma valor pago usando fmtMoeda logic
+  let somaValorPago = 0;
+  state.imoveis.forEach(im => {
+    if (!im.valorPago) return;
+    let s = String(im.valorPago).replace(/[R$\s]/g,"").trim();
+    if (s.includes(",") && s.includes(".")) s = s.replace(/\./g,"").replace(",",".");
+    else if (s.includes(",")) s = s.replace(",",".");
+    const n = parseFloat(s);
+    if (!isNaN(n)) somaValorPago += n;
+  });
+
+  // Contar por TIPO de imóvel
+  const porTipo = {};
+  state.imoveis.forEach(im => {
+    const t = im.tipo || "Outros";
+    porTipo[t] = (porTipo[t] || 0) + 1;
+  });
+
+  const fmtBig = (n) => {
+    if (n === 0) return "R$ 0";
+    if (n >= 1e6) return "R$ " + (n/1e6).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:2}) + "M";
+    if (n >= 1e3) return "R$ " + (n/1e3).toLocaleString("pt-BR",{minimumFractionDigits:0,maximumFractionDigits:1}) + "k";
+    return "R$ " + n.toLocaleString("pt-BR");
+  };
+
+  const tipoItems = IMOVEL_TIPOS
+    .filter(t => porTipo[t])
+    .map(t => '<div class="imovel-resumo-item">'
+      + '<div class="imovel-resumo-num">' + porTipo[t] + '</div>'
+      + '<div class="imovel-resumo-lbl">' + IMOVEL_GRUPO_EMOJIS[t] + ' ' + t + '</div>'
+      + '</div>').join('');
+
+  return '<div class="imovel-resumo">'
+    + '<div class="imovel-resumo-title">📊 Resumo do Portfólio</div>'
+    + '<div class="imovel-resumo-grid">'
+    + '<div class="imovel-resumo-item"><div class="imovel-resumo-num">' + total + '</div><div class="imovel-resumo-lbl">Total</div></div>'
+    + tipoItems
+    + (somaValorPago > 0
+        ? '<div class="imovel-resumo-item imovel-resumo-total"><div class="imovel-resumo-num">' + fmtBig(somaValorPago) + '</div><div class="imovel-resumo-lbl">Total Investido (Vlr. Pago)</div></div>'
+        : '')
+    + '</div></div>';
+}
+
+
+// Helper: serializa um valor para uso seguro em atributo HTML onclick
+// Usa aspas simples para strings para não conflitar com o atributo HTML entre aspas duplas
+function safeAttrStr(v) {
+  if (typeof v === 'number') return String(v);
+  return "'" + String(v).replace(/'/g, "\\'") + "'";
+}
+
+function buildContratosBlock(im) {
+  const contratos = im.contratos || {};
+  const lista = Object.values(contratos).sort((a,b) => (a.titulo||"").localeCompare(b.titulo||""));
+  const showForm   = !!state.showContratoForm[im.id];
+  const editingId  = state.editingContratoId[im.id] || null;
+  const snap       = state._contratoSnap[im.id] || {};
+
+  const contratoFormHtml = (ct, prefixId) => {
+    const v = (f) => esc(ct[f]||"");
+    return '<div class="' + (prefixId ? 'contrato-edit-form' : 'contrato-form') + '">'
+      + '<div class="contrato-field"><span class="contrato-field-label">📄 Título</span>'
+      + '<input id="cf-titulo-'+im.id+'-'+prefixId+'" class="contrato-field-input" placeholder="Ex: Contrato locação" value="'+v('titulo')+'"></div>'
+      + '<div class="contrato-field"><span class="contrato-field-label">📋 Tipo</span>'
+      + '<select id="cf-tipo-'+im.id+'-'+prefixId+'" class="contrato-field-select">'
+      + ['Locação','Compra e Venda','Financiamento','Promessa','Escritura','Outro'].map(o =>
+          '<option value="'+o+'"'+(o===(ct.tipo||'Locação')?' selected':'')+'>'+o+'</option>').join('')
+      + '</select></div>'
+      + '<div class="contrato-field"><span class="contrato-field-label">📅 Data</span>'
+      + '<input id="cf-data-'+im.id+'-'+prefixId+'" class="contrato-field-input" type="date" value="'+v('data')+'"></div>'
+      + '<div class="contrato-field"><span class="contrato-field-label">🔗 Link/Ref</span>'
+      + '<input id="cf-link-'+im.id+'-'+prefixId+'" class="contrato-field-input" placeholder="URL ou referência" value="'+v('link')+'"></div>'
+      + '<div class="contrato-field"><span class="contrato-field-label">💬 Notas</span>'
+      + '<input id="cf-notas-'+im.id+'-'+prefixId+'" class="contrato-field-input" placeholder="Observações" value="'+v('notas')+'"></div>'
+      + '<div class="contrato-pdf-upload">'
+      + '<span class="contrato-pdf-label">📎 PDF do Contrato</span>'
+      + (ct.pdfData
+          ? '<div><a href="'+ct.pdfData+'" download="'+(ct.titulo||'contrato')+'.pdf" class="contrato-pdf-link">📄 '+(ct.pdfNome||'Baixar PDF')+'</a>'
+            + '<button class="contrato-pdf-remove" onclick="removeContratoPdf('+im.id+','+safeAttrStr(prefixId)+')">✕ Remover</button></div>'
+          : '<label class="contrato-pdf-btn"><input type="file" id="cf-pdf-'+im.id+'-'+prefixId+'" accept="application/pdf" style="display:none" onchange="handleContratoPdf('+im.id+','+safeAttrStr(prefixId)+',this)">📎 Selecionar PDF</label>'
+            + '<div id="cf-pdf-name-'+im.id+'-'+prefixId+'" class="contrato-pdf-name"></div>')
+      + '</div>'
+      + '<div class="contrato-form-actions">'
+      + '<button class="contrato-save-btn" onclick="saveContrato(' + im.id + ',' + safeAttrStr(prefixId) + ')">✓ Salvar</button>'
+      + '<button class="contrato-cancel-btn" onclick="cancelContrato(' + im.id + ',' + safeAttrStr(prefixId) + ')">Cancelar</button>'
+      + (prefixId !== 'new' ? '<button class="contrato-del-btn" onclick="deleteContrato(' + im.id + ',' + safeAttrStr(prefixId) + ')">🗑</button>' : '')
+      + '</div></div>';
+  };
+
+  const listaHtml = lista.map(ct => {
+    const isEdit = editingId === ct.id;
+    const link = ct.link && (ct.link.startsWith('http') ? ct.link : 'https://'+ct.link);
+    return '<div class="contrato-card">'
+      + '<div class="contrato-card-body">'
+      + '<div class="contrato-card-nome">' + esc(ct.titulo||"Sem título") + '</div>'
+      + '<div class="contrato-card-meta">'
+      + (ct.tipo ? '<span>' + esc(ct.tipo) + '</span>' : '')
+      + (ct.data ? '<span>' + fmtData(ct.data) + '</span>' : '')
+      + (ct.notas ? '<span>' + esc(ct.notas) + '</span>' : '')
+      + '</div>'
+      + (link ? '<a href="'+link+'" target="_blank" class="contrato-card-link">🔗 Abrir</a>' : '')
+      + (ct.pdfData ? '<a href="'+ct.pdfData+'" download="'+(ct.titulo||'contrato')+'.pdf" class="contrato-card-link">📄 PDF</a>' : '')
+      + (isEdit ? contratoFormHtml(ct, ct.id) : '')
+      + '</div>'
+      + '<button class="contrato-edit-btn" onclick="startEditContrato(' + im.id + ',' + safeAttrStr(ct.id) + ')">✏️</button>'
+      + '</div>';
+  }).join("");
+
+  return '<div class="imovel-contratos">'
+    + '<div class="imovel-contratos-title"><span>📄 Contratos ('+ lista.length +')</span>'
+    + '<button class="add-contrato-btn" onclick="toggleContratoForm('+im.id+')">'+( showForm ? '✕' : '+ Adicionar')+'</button></div>'
+    + (showForm ? contratoFormHtml({}, 'new') : '')
+    + listaHtml
+    + '</div>';
+}
+
+function buildImoveis() {
+  const grouped = {};
+  IMOVEL_GRUPOS.forEach(g => grouped[g] = []);
+  state.imoveis.forEach(im => {
+    const tipo = im.tipo || "Outros";
+    const grp  = IMOVEL_GRUPOS.includes(tipo) ? tipo : "Outros";
+    grouped[grp].push(im);
+  });
+
+  const hasAny = state.imoveis.length > 0;
+  const formHtml = state.showImovelForm
+    ? '<div class="imovel-form">'
+      + '<div class="imovel-form-title">🏘 Novo Imóvel</div>'
+      + buildImovelFormFields({}, "ni")
+      + '<div class="imovel-form-actions">'
+      + '<button class="imovel-save-btn" onclick="saveNewImovel()">Salvar imóvel</button>'
+      + '<button class="imovel-cancel-btn" onclick="toggleImovelForm()">Cancelar</button>'
+      + '</div></div>'
+    : "";
+
+  const listHtml = !hasAny && !state.showImovelForm
+    ? '<div class="empty"><div class="empty-icon">🏘</div><div>Nenhum imóvel cadastrado.</div></div>'
+    : IMOVEL_GRUPOS.filter(g => grouped[g].length > 0).map(g =>
+        '<div class="imovel-group-label">'
+        + IMOVEL_GRUPO_EMOJIS[g] + ' ' + g
+        + ' <span class="imovel-group-count">' + grouped[g].length + '</span></div>'
+        + grouped[g].map(buildImovelCard).join("")
+      ).join("");
+
+  return '<div class="imovel-header">'
+    + '<div class="imovel-header-title">🏘 ' + state.imoveis.length + ' Imóveis</div>'
+    + '<button class="new-imovel-btn" onclick="toggleImovelForm()">'
+    + (state.showImovelForm ? "✕ Fechar" : "+ Novo") + '</button></div>'
+    + buildResumoPainel()
+    + formHtml + listHtml;
+}
+
+
+// ── CONTRATO ACTIONS ───────────────────────────────────────────────
+window.toggleContratoForm = function(imId) {
+  state.showContratoForm[imId] = !state.showContratoForm[imId];
+  state.editingContratoId[imId] = null;
+  render();
+};
+
+window.startEditContrato = function(imId, ctId) {
+  state.editingContratoId[imId] = state.editingContratoId[imId] === ctId ? null : ctId;
+  state.showContratoForm[imId] = false;
+  render();
+};
+
+window.cancelContrato = function(imId, ctId) {
+  if (ctId === 'new') state.showContratoForm[imId] = false;
+  else state.editingContratoId[imId] = null;
+  render();
+};
+
+function readContratoFields(imId, ctId) {
+  const g = f => { const el = document.getElementById('cf-'+f+'-'+imId+'-'+ctId); return el ? el.value.trim() : ""; };
+  return { titulo: g('titulo'), tipo: g('tipo'), data: g('data'), link: g('link'), notas: g('notas') };
+}
+
+window.saveContrato = async function(imId, ctId) {
+  const im = state.imoveis.find(i => i.id === imId);
+  if (!im) return;
+  const data = readContratoFields(imId, ctId);
+  if (!data.titulo) { alert("Título do contrato é obrigatório"); return; }
+  if (!im.contratos) im.contratos = {};
+  const newId = ctId === 'new'
+    ? String(Date.now() * 1000 + Math.floor(Math.random() * 1000))
+    : ctId;
+  // Preserva PDF existente se não houve novo upload
+  const existing = im.contratos[newId] || {};
+  const pdfKey = imId + '-' + ctId;
+  const pdfTemp = state._pdfTemp && state._pdfTemp[pdfKey];
+  const pdfData = pdfTemp ? pdfTemp.data : existing.pdfData;
+  const pdfNome = pdfTemp ? pdfTemp.nome : existing.pdfNome;
+  im.contratos[newId] = { ...data, id: newId,
+    ...(pdfData ? { pdfData, pdfNome } : {}) };
+  if (pdfTemp && state._pdfTemp) delete state._pdfTemp[pdfKey];
+  if (ctId === 'new') state.showContratoForm[imId] = false;
+  else state.editingContratoId[imId] = null;
+  render();
+  await fbSaveImovel(im);
+};
+
+window.deleteContrato = async function(imId, ctId) {
+  if (!confirm("Remover este contrato?")) return;
+  const im = state.imoveis.find(i => i.id === imId);
+  if (!im || !im.contratos) return;
+  delete im.contratos[ctId];
+  state.editingContratoId[imId] = null;
+  render();
+  await fbSaveImovel(im);
+};
+
+
+// ── PDF DE CONTRATO ────────────────────────────────────────────────
+window.handleContratoPdf = function(imId, ctId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 4 * 1024 * 1024) {
+    alert("PDF muito grande. Tamanho máximo: 4MB. Tente comprimr o arquivo.");
+    return;
+  }
+  const nameEl = document.getElementById('cf-pdf-name-'+imId+'-'+ctId);
+  if (nameEl) nameEl.textContent = "⏳ Carregando " + file.name + "...";
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Guarda temporariamente no state para salvar junto com saveContrato
+    if (!state._pdfTemp) state._pdfTemp = {};
+    state._pdfTemp[imId+'-'+ctId] = { data: e.target.result, nome: file.name };
+    if (nameEl) nameEl.textContent = "✅ " + file.name;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.removeContratoPdf = async function(imId, ctId) {
+  const im = state.imoveis.find(i => i.id === imId);
+  if (!im || !im.contratos) return;
+  const ct = ctId === 'new' ? null : im.contratos[ctId];
+  if (ct) { delete ct.pdfData; delete ct.pdfNome; }
+  if (state._pdfTemp) delete state._pdfTemp[imId+'-'+ctId];
+  render();
+  if (ct) await fbSaveImovel(im);
+};
+
+// ── IMÓVEIS ACTIONS ────────────────────────────────────────────────
+window.toggleImovelForm = function() {
+  state.showImovelForm = !state.showImovelForm;
+  state.editingImovelId = null;
+  render();
+};
+
+window.saveNewImovel = async function() {
+  const data = readImovelFormFields("ni");
+  if (!data.nome) { alert("Nome do imóvel é obrigatório"); return; }
+  const im = { ...data, id: Date.now() * 1000 + Math.floor(Math.random() * 1000) };
+  state.showImovelForm = false;
+  render();
+  await fbSaveImovel(im);
+};
+
+window.startEditImovel = function(id) {
+  state.editingImovelId = state.editingImovelId === id ? null : id;
+  state.showImovelForm = false;
+  render();
+};
+
+window.cancelImovelEdit = function() {
+  state.editingImovelId = null;
+  render();
+};
+
+window.saveImovelEdit = async function(id) {
+  const data = readImovelFormFields("ei-"+id);
+  const im = state.imoveis.find(i => i.id === id);
+  if (!im) return;
+  // Preserve contratos, foto e outros campos não editáveis pelo form
+  const preserved = { contratos: im.contratos, foto: im.foto };
+  Object.assign(im, data, preserved);
+  state.editingImovelId = null;
+  render();
+  await fbSaveImovel(im);
+};
+
+window.deleteImovel = async function(id) {
+  if (!confirm("Remover este imóvel?")) return;
+  state.editingImovelId = null;
+  render();
+  await fbDeleteImovel(id);
+};
+
+function buildContacts() {
+  const cf = state.cf;
+  return `
+    <div class="contacts-header">
+      <div class="contacts-title">👥 ${state.contacts.length} Contatos</div>
+      <button class="new-contact-btn" onclick="toggleContactForm()">${state.showContactForm?"✕ Fechar":"+ Novo"}</button>
+    </div>
+    ${state.showContactForm?`
+    <div class="contact-form">
+      <div class="contact-form-title">Novo Contato</div>
+      <div class="contact-photo-upload">
+        ${cf.photo?`<img src="${cf.photo}" class="photo-preview" onclick="triggerPhotoUpload()" alt="foto">`:
+          `<div class="photo-placeholder" onclick="triggerPhotoUpload()">📷</div>`}
+        <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+        <label class="photo-label" onclick="triggerPhotoUpload()">
+          <span>Escolher foto</span> da galeria<br>
+          <span style="color:#BBB;font-weight:400">JPG, PNG ou HEIC</span>
+        </label>
+      </div>
+      ${[["👤 Nome","name","Nome completo"],["🏢 Empresa","company","Empresa ou profissão"],
+         ["🏙 Cidade","city","Ex: São Paulo, SP"],["📱 Telefone","phone","+55 11 9 9999-9999"],
+         ["🌐 Site","site","https://..."],["📧 Email","email","email@exemplo.com"]
+        ].map(([l,f,p])=>`
+        <div class="contact-field">
+          <span class="contact-field-label">${l}</span>
+          <input class="contact-field-input" placeholder="${p}" value="${esc(cf[f]||"")}"
+            oninput="setCF('${f}',this.value)">
+        </div>`).join("")}
+      <div class="contact-field">
+        <span class="contact-field-label">📂 Seção</span>
+        <select class="contact-field-select" onchange="setCF('section',this.value)">
+          ${CONTACT_SECS.map(s=>`<option value="${s}"${s===cf.section?" selected":""}>${s}</option>`).join("")}
+        </select>
+      </div>
+      <div class="contact-form-actions">
+        <button class="contact-save-btn" onclick="saveContact()">Salvar contato</button>
+        <button class="contact-cancel-btn" onclick="toggleContactForm()">Cancelar</button>
+      </div>
+    </div>`:""}
+    <input id="contacts-search" class="contacts-search" placeholder="🔍 Buscar nome, empresa ou cidade..."
+      oninput="filterContacts(this.value)">
+    <div id="contacts-list">${buildContactsList()}</div>`;
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────
+// Text fields that should NOT trigger render while typing
+const NO_RENDER_KEYS = new Set(["input","address","notes","contactSearch","travelName","globalSearch","mercadoSearch"]);
+// Captura os valores dos inputs não-controlados antes de qualquer render()
+function snapFormInputs() {
+  const v = (id) => { const el = document.getElementById(id); return el ? el.value : null; };
+  const main = v("main-input");        if (main    !== null) state._snap_main    = main;
+  const addr = v("address-input");     if (addr    !== null) state._snap_address = addr;
+  const note = v("notes-input");       if (note    !== null) state._snap_notes   = note;
+  const tname= v("travel-name-input"); if (tname   !== null) state.travelName    = tname;
+  const tdate= v("travel-date-input"); if (tdate   !== null) state.travelDate    = tdate;
+}
+
+// Restaura os valores nos inputs após render()
+function restoreFormInputs() {
+  const s = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  s("main-input",    state._snap_main);
+  s("address-input", state._snap_address);
+  s("notes-input",   state._snap_notes);
+}
+
+window.S = function(key, val) {
+  snapFormInputs();   // salva o que o usuário digitou
+  state[key] = val;
+  if (NO_RENDER_KEYS.has(key)) return;
+  render();
+  restoreFormInputs(); // recoloca os valores após render
+};
+window.setGroup = function(id) {
+  // Save travel fields from DOM before switching tabs
+  const tn = document.getElementById("travel-name-input");
+  if (tn) state.travelName = tn.value.trim();
+  const td = document.getElementById("travel-date-input");
+  if (td) state.travelDate = td.value;
+  state.activeGroup=id; state.selectedHouse=null; render();
+};
+
+window.addTask = async function() {
+  const mainInput    = document.getElementById("main-input");
+  const addressInput = document.getElementById("address-input");
+  const notesInput   = document.getElementById("notes-input");
+  const travelInput  = document.getElementById("travel-name-input");
+  const text = mainInput ? mainInput.value.trim() : "";
+  if (!text) return;
+  const address    = addressInput ? addressInput.value.trim() : "";
+  const notes      = notesInput   ? notesInput.value.trim()   : "";
+  const travelName = travelInput  ? travelInput.value.trim()  : state.travelName;
+  if (travelInput) state.travelName = travelName;
+  const task = {
+    id: Date.now() * 1000 + Math.floor(Math.random() * 1000),
+    text, group: state.activeGroup, assignee: state.assignee,
+    done: false, dueDate: state.dueDate||null, dueTime: state.dueTime||null,
+    address: address||null, notes: notes||null,
+    house: (state.activeGroup==="casa"||state.activeGroup==="compras") ? state.selectedHouse : null,
+    createdAt: new Date().toLocaleDateString("pt-BR"),
+    ...(state.activeGroup==="viagens"&&{travelName:travelName||"Próxima viagem",travelDate:state.travelDate||null,travelCategory:state.travelCategory}),
+    ...(state.activeGroup==="saude"&&{healthCategory:state.healthCategory,healthMedico:(document.getElementById("health-medico-input")?.value.trim()||state.healthMedico||null),healthRetorno:state.healthRetorno||null}),
+    ...(state.activeGroup==="compras"&&{shoppingCategory:state.shoppingCategory}),
+    tags: state.newTags && state.newTags.length ? [...state.newTags] : null,
+  };
+  state.dueDate=""; state.dueTime=""; state.newTags=[];
+  render();
+  await fbSaveTask(task);
+  setTimeout(()=>{ const el=document.getElementById("main-input"); if(el){ el.value=""; el.focus(); } },50);
+};
+
+window.toggleTask = async function(id) {
+  const task = state.tasks.find(t=>t.id===id);
+  if (!task) return;
+  await fbUpdateTask(id, { done: !task.done });
+};
+
+window.deleteTask = async function(id) {
+  if (!confirm("Remover esta tarefa?")) return;
+  await fbDeleteTask(id);
+};
+
+
+// ── TASK TEXT EDIT ─────────────────────────────────────────────────
+window.startEditText = function(id) {
+  if (state.tasks.find(t=>t.id===id)?.done) return;
+  state.editingText = {};
+  state.editingText[id] = true;
+  state.textVal[id] = state.tasks.find(t=>t.id===id)?.text || "";
+  render();
+};
+window.cancelTaskText = function(id) {
+  delete state.editingText[id];
+  delete state.textVal[id];
+  render();
+};
+window.saveTaskText = async function(id) {
+  const el = document.getElementById("te-"+id);
+  const newText = (el ? el.value : state.textVal[id] || "").trim();
+  if (!newText) return;
+  const task = state.tasks.find(t=>t.id===id);
+  if (task) task.text = newText;
+  delete state.editingText[id];
+  delete state.textVal[id];
+  render();
+  await fbUpdateTask(id, { text: newText });
+};
+
+window.startEditNote = function(id) {
+  state.editingNotes[id]=true;
+  state.notesVal[id]=state.tasks.find(t=>t.id===id)?.notes||"";
+  render();
+};
+window.setNoteVal = function(id,val) { state.notesVal[id]=val; };
+window.saveNote = async function(id) {
+  const notes = state.notesVal[id]?.trim()||null;
+  delete state.editingNotes[id];
+  render();
+  await fbUpdateTask(id, { notes });
+};
+window.cancelNote = function(id) { delete state.editingNotes[id]; render(); };
+
+window.onDueDateChange = function(val) {
+  state.dueDate = val;
+  // Enable/disable time input without re-rendering
+  const timeEl = document.getElementById("due-time-input");
+  if (timeEl) timeEl.disabled = !val;
+  // Show/hide calendar toggle without re-rendering
+  const wrap = document.getElementById("cal-toggle-wrap");
+  if (wrap) {
+    wrap.innerHTML = val ? `<label class="cal-toggle">
+      <input type="checkbox" ${state.addToCalendar?"checked":""} onchange="state.addToCalendar=this.checked">
+      Adicionar à agenda
+    </label>` : "";
+  }
+  if (!val) { state.dueTime = ""; const t = document.getElementById("due-time-input"); if(t) t.value = ""; }
+};
+
+window.filterContacts = function(val) {
+  state.contactSearch = val;
+  // Re-render only the contacts list section, not the whole page
+  const listEl = document.getElementById("contacts-list");
+  if (listEl) listEl.innerHTML = buildContactsList();
+};
+
+function buildContactEditForm(c) {
+  const fields = [["👤","name","Nome completo"],["🏢","company","Empresa / profissão"],
+                  ["🏙","city","Cidade"],["📱","phone","+55 11 9 9999-9999"],
+                  ["🌐","site","https://..."],["📧","email","email@exemplo.com"]];
+  return '<div class="contact-edit-form">'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+    + (c.photo
+        ? '<img src="'+c.photo+'" class="contact-avatar" style="width:40px;height:40px" onclick="triggerContactPhotoEdit('+c.id+')" alt="foto">'
+        : '<div class="contact-avatar-placeholder" style="width:40px;height:40px;font-size:16px" onclick="triggerContactPhotoEdit('+c.id+')">📷</div>')
+    + '<input type="file" id="contact-photo-edit-'+c.id+'" accept="image/*" style="display:none" onchange="handleContactPhotoEdit(this,'+c.id+')">'
+    + '<span style="font-size:11px;color:#999">Toque na foto para trocar</span></div>'
+    + fields.map(([icon,f,ph]) =>
+        '<div class="contact-field" style="margin-bottom:7px">'
+        + '<span class="contact-field-label">'+icon+'</span>'
+        + '<input id="ce-'+f+'-'+c.id+'" class="contact-field-input" placeholder="'+ph+'" value="'+esc(c[f]||'')+'">'
+        + '</div>'
+      ).join('')
+    + '<div class="contact-field" style="margin-bottom:7px">'
+    + '<span class="contact-field-label">📂</span>'
+    + '<select id="ce-section-'+c.id+'" class="contact-field-select">'
+    + CONTACT_SECS.map(s=>'<option value="'+s+'"'+(s===c.section?' selected':'')+'>'+s+'</option>').join('')
+    + '</select></div>'
+    + '<div class="contact-edit-actions">'
+    + '<button class="contact-edit-save" onclick="saveContactEdit('+c.id+')">✓ Salvar</button>'
+    + '<button class="contact-edit-cancel" onclick="cancelContactEdit()">Cancelar</button>'
+    + '<button class="contact-edit-delete" onclick="deleteContact('+c.id+')">🗑</button>'
+    + '</div></div>';
+}
+
+function buildContactsList() {
+  const filtered = state.contacts.filter(c =>
+    !state.contactSearch ||
+    c.name.toLowerCase().includes(state.contactSearch.toLowerCase()) ||
+    (c.company||"").toLowerCase().includes(state.contactSearch.toLowerCase()) ||
+    (c.city||"").toLowerCase().includes(state.contactSearch.toLowerCase())
+  );
+  const grouped = {};
+  filtered.forEach(c => { const s=c.section||"Outros"; if(!grouped[s])grouped[s]=[]; grouped[s].push(c); });
+  const sorted = [...CONTACT_SECS.filter(s=>grouped[s]),...Object.keys(grouped).filter(s=>!CONTACT_SECS.includes(s))];
+  if (!sorted.length) return '<div class="empty"><div class="empty-icon">👥</div><div>Nenhum contato ainda.</div></div>';
+  return sorted.map(sec =>
+    '<div class="contacts-section-label">'+esc(sec)+'</div>'
+    + grouped[sec].map(c => {
+        const isEditing = state.editingContactId === c.id;
+        return '<div class="contact-card" style="flex-direction:column;align-items:stretch">'
+          + '<div style="display:flex;align-items:center;gap:12px">'
+          + (c.photo
+              ? '<img src="'+c.photo+'" class="contact-avatar" alt="'+esc(c.name)+'">'
+              : '<div class="contact-avatar-placeholder">👤</div>')
+          + '<div class="contact-info">'
+          + '<div class="contact-name">'+esc(c.name)+'</div>'
+          + (c.company||c.city ? '<div class="contact-company">'+esc(c.company||'')+(c.company&&c.city?' · ':'')+esc(c.city||'')+'</div>' : '')
+          + '<div class="contact-links">'
+          + (c.phone ? '<a href="tel:'+esc(c.phone)+'" class="contact-link">📱 '+esc(c.phone)+'</a>' : '')
+          + (c.email ? '<a href="mailto:'+esc(c.email)+'" class="contact-link">📧 '+esc(c.email)+'</a>' : '')
+          + (c.site  ? '<a href="'+(c.site.startsWith('http')?c.site:'https://'+c.site)+'" target="_blank" class="contact-link">🌐 Site</a>' : '')
+          + '</div></div>'
+          + '<button class="contact-delete-btn" onclick="startContactEdit('+c.id+')" title="Editar">✏️</button>'
+          + '</div>'
+          + (isEditing ? buildContactEditForm(c) : '')
+          + '</div>';
+      }).join('')
+  ).join('');
+}
+
+
+// ── CONTACT EDIT ───────────────────────────────────────────────────
+window.startContactEdit = function(id) {
+  state.editingContactId = state.editingContactId === id ? null : id;
+  const listEl = document.getElementById("contacts-list");
+  if (listEl) listEl.innerHTML = buildContactsList();
+};
+window.cancelContactEdit = function() {
+  state.editingContactId = null;
+  const listEl = document.getElementById("contacts-list");
+  if (listEl) listEl.innerHTML = buildContactsList();
+};
+window.triggerContactPhotoEdit = function(id) {
+  document.getElementById("contact-photo-edit-"+id)?.click();
+};
+window.handleContactPhotoEdit = function(input, id) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const contact = state.contacts.find(c=>c.id===id);
+    if (!contact) return;
+    contact.photo = e.target.result;
+    const listEl = document.getElementById("contacts-list");
+    if (listEl) listEl.innerHTML = buildContactsList();
+    await fbSaveContact(contact);
+  };
+  reader.readAsDataURL(file);
+};
+window.saveContactEdit = async function(id) {
+  const contact = state.contacts.find(c=>c.id===id);
+  if (!contact) return;
+  const v = (f) => { const el = document.getElementById("ce-"+f+"-"+id); return el ? el.value.trim() : contact[f]||""; };
+  contact.name    = v("name");
+  contact.company = v("company");
+  contact.city    = v("city");
+  contact.phone   = v("phone");
+  contact.site    = v("site");
+  contact.email   = v("email");
+  const secEl = document.getElementById("ce-section-"+id);
+  if (secEl) contact.section = secEl.value;
+  state.editingContactId = null;
+  const listEl = document.getElementById("contacts-list");
+  if (listEl) listEl.innerHTML = buildContactsList();
+  await fbSaveContact(contact);
+};
+window.toggleContactForm = function() { state.showContactForm=!state.showContactForm; state.contactSearch=""; render(); };
+window.setCF = function(f,v) { state.cf[f]=v; };
+window.triggerPhotoUpload = function() { document.getElementById("photo-input")?.click(); };
+window.handlePhotoUpload = function(input) {
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{ state.cf.photo=e.target.result; render(); };
+  reader.readAsDataURL(file);
+};
+window.saveContact = async function() {
+  if (!state.cf.name.trim()) { alert("Nome é obrigatório"); return; }
+  const contact = { ...state.cf, id: Date.now() * 1000 + Math.floor(Math.random() * 1000) };
+  state.cf={ photo:null,name:"",company:"",section:"Outros",city:"",phone:"",site:"",email:"" };
+  state.showContactForm=false;
+  render();
+  await fbSaveContact(contact);
+};
+window.deleteContact = async function(id) {
+  if (!confirm("Remover este contato?")) return;
+  await fbDeleteContact(id);
+};
+
+
+
+
+// ── EDIÇÃO DE DATA DO GRUPO DE VIAGEM ─────────────────────────────
+window.startEditTripDate = function(tripKey) {
+  state.editingTripDate = {};  // fecha outros abertos
+  state.editingTripDate[tripKey] = true;
+  render();
+};
+
+window.cancelTripDate = function(tripKey) {
+  delete state.editingTripDate[tripKey];
+  render();
+};
+
+window.saveTripDate = async function(tripKey, tripName) {
+  const inp = document.getElementById('ttd-' + encodeURIComponent(tripKey));
+  const newDate = inp ? inp.value : "";
+  // Atualizar todas as tarefas desta viagem
+  const tasks = state.tasks.filter(t => t.group === "viagens" && (t.travelName || "Próxima viagem") === tripName);
+  if (!tasks.length) { delete state.editingTripDate[tripKey]; render(); return; }
+  tasks.forEach(t => { t.travelDate = newDate || null; });
+  delete state.editingTripDate[tripKey];
+  render();
+  // Salvar todas as tarefas no Firebase
+  for (const t of tasks) {
+    await fbUpdateTask(t.id, { travelDate: newDate || null });
+  }
+};
+
+window.clearTripDate = async function(tripKey, tripName) {
+  await saveTripDate(tripKey, tripName);  // salva com campo vazio = remove a data
+};
+
+// ── ASSIGNEE EDIT ON TASK CARDS ────────────────────────────────────
+
+// ── ENDEREÇO EDITÁVEL NA TAREFA ────────────────────────────────────
+window.startEditAddress = function(id) {
+  state.editingAddress = {};
+  state.editingAddress[id] = true;
+  state.addressVal[id] = state.tasks.find(t=>t.id===id)?.address||"";
+  render();
+};
+window.cancelAddress = function(id) {
+  delete state.editingAddress[id];
+  delete state.addressVal[id];
+  render();
+};
+window.saveAddress = async function(id) {
+  const el = document.getElementById("ae-"+id);
+  const addr = (el ? el.value : state.addressVal[id]||"").trim() || null;
+  const task = state.tasks.find(t=>t.id===id);
+  if (task) task.address = addr;
+  delete state.editingAddress[id];
+  delete state.addressVal[id];
+  render();
+  await fbUpdateTask(id, { address: addr });
+};
+
+// ── TAGS NAS TAREFAS ───────────────────────────────────────────────
+window.toggleNewTag = function(tag) {
+  const tags = state.newTags || [];
+  const idx = tags.indexOf(tag);
+  if (idx >= 0) tags.splice(idx, 1); else tags.push(tag);
+  state.newTags = [...tags];
+  render();
+};
+window.removeTag = async function(id, tag) {
+  const task = state.tasks.find(t=>t.id===id);
+  if (!task) return;
+  task.tags = (task.tags||[]).filter(t=>t!==tag);
+  render();
+  await fbUpdateTask(id, { tags: task.tags });
+};
+
+window.startEditAssignee = function(id) {
+  const task = state.tasks.find(t=>t.id===id);
+  if (!task || task.done) return;
+  state.editingAssignee = {};           // fecha outros abertos
+  state.editingAssignee[id] = task.assignee; // valor atual como selecionado
+  render();
+};
+window.pickAssignee = function(id, val) {
+  state.editingAssignee[id] = val;       // atualiza seleção sem render completo
+  // Atualiza visual dos botões sem re-render
+  const row = document.querySelector('.assignee-edit-row');
+  if (row) row.querySelectorAll('.assignee-edit-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === val);
+  });
+};
+window.saveAssignee = async function(id) {
+  const newAssignee = state.editingAssignee[id];
+  if (!newAssignee) return;
+  const task = state.tasks.find(t=>t.id===id);
+  if (task) task.assignee = newAssignee;
+  delete state.editingAssignee[id];
+  render();
+  await fbUpdateTask(id, { assignee: newAssignee });
+};
+window.cancelAssigneeEdit = function(id) {
+  delete state.editingAssignee[id];
+  render();
+};
+
+// ── DATE/TIME EDIT ON TASK CARDS ───────────────────────────────────
+window.startEditDate = function(id) {
+  const task = state.tasks.find(t=>t.id===id);
+  if (!task || task.done) return;
+  // Close any other open date editors
+  state.editingDateTime = {};
+  state.editingDateTime[id] = true;
+  // Seed scratch values from task
+  state._dtEdit[id] = { date: task.dueDate||"", time: task.dueTime||"" };
+  render();
+};
+
+window.cancelDateEdit = function(id) {
+  delete state.editingDateTime[id];
+  delete state._dtEdit[id];
+  render();
+};
+
+// Called when date picker changes — enable/disable time, update scratch
+window.onTaskDateChange = function(id, val) {
+  if (!state._dtEdit[id]) state._dtEdit[id] = {};
+  state._dtEdit[id].date = val;
+  // Enable/disable time input inline without re-render
+  const timeEl = document.getElementById("de-time-"+id);
+  if (timeEl) {
+    timeEl.disabled = !val;
+    if (!val) { timeEl.value = ""; state._dtEdit[id].time = ""; }
+  }
+};
+
+window.saveDateEdit = async function(id) {
+  const scratch = state._dtEdit[id] || {};
+  // Read directly from DOM inputs in case user typed without triggering onchange
+  const dateEl = document.getElementById("de-date-"+id);
+  const timeEl = document.getElementById("de-time-"+id);
+  const newDate = (dateEl ? dateEl.value : scratch.date) || null;
+  const newTime = (timeEl && !timeEl.disabled ? timeEl.value : "") || null;
+
+  // Update local state immediately for instant feedback
+  const task = state.tasks.find(t=>t.id===id);
+  if (task) { task.dueDate = newDate; task.dueTime = newTime; }
+  delete state.editingDateTime[id];
+  delete state._dtEdit[id];
+  render();
+  await fbUpdateTask(id, { dueDate: newDate, dueTime: newTime });
+};
+
+window.clearDateEdit = async function(id) {
+  const task = state.tasks.find(t=>t.id===id);
+  if (task) { task.dueDate = null; task.dueTime = null; }
+  delete state.editingDateTime[id];
+  delete state._dtEdit[id];
+  render();
+  await fbUpdateTask(id, { dueDate: null, dueTime: null });
+};
+
+// ── FDS ────────────────────────────────────────────────────────────
+function generateWeekends() {
+  // Dados exatos da tabela — [key, fri, sat, sun, joaDefault, isaDefault, event]
+  const DATA = [
+    ["2026-04-03","03/abr","04/abr","05/abr","Itamar","Daiana","Páscoa - Jacumã"],
+    ["2026-04-10","10/abr","11/abr","12/abr","Natalia","Daiana","Santos | Dentista"],
+    ["2026-04-17","17/abr","18/abr","19/abr","Itamar","Daiana","Cartagena"],
+    ["2026-04-24","24/abr","25/abr","26/abr","Natalia","Daniel","Niver Helena"],
+    ["2026-05-01","01/mai","02/mai","03/mai","Itamar","Daiana","Natal"],
+    ["2026-05-08","08/mai","09/mai","10/mai","Natalia","Daniel",""],
+    ["2026-05-15","15/mai","16/mai","17/mai","Itamar","Daiana",""],
+    ["2026-05-22","22/mai","23/mai","24/mai","Natalia","Daniel","Niver Joca - Gramado"],
+    ["2026-05-29","29/mai","30/mai","31/mai","Itamar","Daiana","Festa da Família - Isa"],
+    ["2026-06-05","05/jun","06/jun","07/jun","Natalia","Daniel","Ushuaia"],
+    ["2026-06-12","12/jun","13/jun","14/jun","Itamar","Daiana","Jacutinga"],
+    ["2026-06-19","19/jun","20/jun","21/jun","Itamar","Daiana","Caruaru e Santa Cruz de Capibaribe"],
+    ["2026-06-26","26/jun","27/jun","28/jun","Natalia","Daniel","Festa Junina Isa + Jacumã"],
+    ["2026-07-03","03/jul","04/jul","05/jul","Natalia","Daniel","Jacumã"],
+    ["2026-07-10","10/jul","11/jul","12/jul","Natalia","Daniel","Jacumã"],
+    ["2026-07-17","17/jul","18/jul","19/jul","Itamar","Daiana",""],
+    ["2026-07-24","24/jul","25/jul","26/jul","Itamar","Daiana",""],
+    ["2026-07-31","31/jul","01/ago","02/ago","Natalia","Daniel",""],
+    ["2026-08-07","07/ago","08/ago","09/ago","Itamar","Daiana",""],
+    ["2026-08-14","14/ago","15/ago","16/ago","Natalia","Daniel","Niver Nat"],
+    ["2026-08-21","21/ago","22/ago","23/ago","Itamar","Daiana",""],
+    ["2026-08-28","28/ago","29/ago","30/ago","Natalia","Daniel",""],
+    ["2026-09-04","04/set","05/set","06/set","Itamar","Daiana",""],
+    ["2026-09-11","11/set","12/set","13/set","Natalia","Daniel",""],
+    ["2026-09-18","18/set","19/set","20/set","Itamar","Daiana",""],
+    ["2026-09-25","25/set","26/set","27/set","Natalia","Daniel","Casamento Ozato | Miami"],
+    ["2026-10-02","02/out","03/out","04/out","Itamar","Daiana",""],
+    ["2026-10-09","09/out","10/out","11/out","Natalia","Daniel",""],
+    ["2026-10-16","16/out","17/out","18/out","Itamar","Daiana",""],
+    ["2026-10-23","23/out","24/out","25/out","Natalia","Daniel",""],
+    ["2026-10-30","30/out","31/out","01/nov","Itamar","Daiana",""],
+    ["2026-11-06","06/nov","07/nov","08/nov","Natalia","Daniel",""],
+    ["2026-11-13","13/nov","14/nov","15/nov","Itamar","Daiana",""],
+    ["2026-11-20","20/nov","21/nov","22/nov","Natalia","Daniel",""],
+    ["2026-11-27","27/nov","28/nov","29/nov","Itamar","Daiana",""],
+    ["2026-12-04","04/dez","05/dez","06/dez","Natalia","Daniel",""],
+    ["2026-12-11","11/dez","12/dez","13/dez","Itamar","Daiana",""],
+    ["2026-12-18","18/dez","19/dez","20/dez","Natalia","Daniel",""],
+    ["2026-12-25","25/dez","26/dez","27/dez","Itamar","Daiana",""],
+    ["2027-01-01","01/jan","02/jan","03/jan","Natalia","Daniel",""],
+    ["2027-01-08","08/jan","09/jan","10/jan","Itamar","Daiana",""],
+    ["2027-01-15","15/jan","16/jan","17/jan","Natalia","Daniel",""],
+    ["2027-01-22","22/jan","23/jan","24/jan","Itamar","Daiana",""],
+  ];
+  return DATA.map(([key, fri, sat, sun, joaDefault, isaDefault, event]) => {
+    const sunDate = new Date(key+"T12:00:00");
+    sunDate.setDate(sunDate.getDate()+2);
+    const sunKey = sunDate.toISOString().split("T")[0];
+    return { key, sunKey, fri, sat, sun, joaDefault, isaDefault, event };
+  });
+}
+
+function buildFDS() {
+  const today = new Date().toISOString().split("T")[0];
+  const allWeeks = generateWeekends();
+  const pastCount = allWeeks.filter(w => w.sunKey < today).length;
+  const weeks = state.hidePast ? allWeeks.filter(w => w.sunKey >= today) : allWeeks;
+
+  const buildTable = (title, emoji, whoKey, opts, greenVal) => {
+    const rows = weeks.map(w => {
+      const saved = state.fds[w.key] || {};
+      const who = saved[whoKey] !== undefined ? saved[whoKey] : (whoKey==="isa_who" ? w.isaDefault : w.joaDefault);
+      const event = saved.event !== undefined ? saved.event : w.event;
+      const green = who === greenVal;
+      const rc = green ? "fds-row-green" : "fds-row-white";
+      const selStyle = green ? ' style="color:#fff"' : '';
+      return '<tr class="'+rc+'">'
+        + '<td><select class="fds-who-select" onchange="saveFdsWho(\''+w.key+'\',\''+whoKey+'\',this.value)"'+selStyle+'>'
+        + opts.map(o => '<option value="'+o+'"'+(o===who?' selected':'')+'>'+o+'</option>').join('')
+        + '</select></td>'
+        + '<td>'+w.fri+'</td><td>'+w.sat+'</td><td>'+w.sun+'</td>'
+        + '</tr>'
+        + '<tr class="fds-obs-row"><td colspan="4"><div class="fds-obs-inner">'
+        + '<textarea class="fds-event-input" rows="1" placeholder="★ Adicionar evento..." onblur="saveFdsEvent(\''+w.key+'\',this.value)" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();this.blur()}">'+esc(event)+'</textarea>'
+        + '</div></td></tr>';
+    }).join('');
+    return '<div class="fds-col">'
+      + '<div class="fds-block-title">'+emoji+' '+title+'</div>'
+      + '<div class="fds-block"><div class="fds-wrapper"><table class="fds-table">'
+      + '<thead><tr><th>Quem</th><th>Sex</th><th>Sab</th><th>Dom</th></tr></thead>'
+      + '<tbody>'+rows+'</tbody></table></div></div></div>';
+  };
+
+  const toggleLabel = state.hidePast
+    ? '👁 Ver passados ('+pastCount+')'
+    : '🙈 Ocultar passados';
+
+  return '<div>'
+    + '<div style="display:flex;justify-content:flex-end;margin-bottom:12px">'
+    + '<button onclick="toggleHidePast()" style="background:#1C1C1E;color:#F5F0E8;border:none;border-radius:20px;padding:7px 16px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;cursor:pointer">'
+    + toggleLabel+'</button></div>'
+    + '<div class="fds-outer">'
+    + buildTable("Isabelle","👧","isa_who",["Daniel","Daiana"],"Daniel")
+    + buildTable("Joaquim","👦","joa_who",["Natalia","Itamar"],"Natalia")
+    + '</div></div>';
+}
+
+window.saveFdsWho = async function(weekKey, field, val) {
+  const cur = state.fds[weekKey] || {};
+  const upd = Object.assign({}, cur, {[field]: val});
+  state.fds[weekKey] = upd;
+  render();
+  await fbSaveFds(weekKey, upd);
+};
+
+window.toggleHidePast = function() { state.hidePast = !state.hidePast; render(); };
+
+window.saveFdsEvent = async function(weekKey, val) {
+  const cur = state.fds[weekKey] || {};
+  const upd = Object.assign({}, cur, {event: val.trim()});
+  state.fds[weekKey] = upd;
+  await fbSaveFds(weekKey, upd);
+};
+
+function esc(str) {
+  return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+</script>
+</body>
+</html>
